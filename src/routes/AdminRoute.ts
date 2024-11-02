@@ -7,7 +7,7 @@ const adminController = new AdminController();
 
 adminRoute.get("/test", adminController.test);
 adminRoute.get("/", authMiddleware, adminController.dashboard);
-adminRoute.post("/", adminController.create);
+adminRoute.post("/", authMiddleware, adminController.create);
 adminRoute.post("/authenticate", adminController.authenticate);
 
 export default adminRoute;
