@@ -13,7 +13,7 @@ class AdminService {
     }
 
     // CREATE ADMIN METHOD
-    async createAdmin() {
+    async create() {
 
     }
 
