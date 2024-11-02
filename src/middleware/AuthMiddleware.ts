@@ -24,23 +24,20 @@ const authMiddleware = async (req: authMiddlewareRequest, res: Response, next: N
 
         const verifiedToken = verifyToken(token) as any;
 
+        let user;
+
         if (verifiedToken.role === "Admin") {
 
-            const admin = await adminService.show(verifiedToken.id);
+            user = await adminService.show(verifiedToken.id);
 
-            if (!admin) {
+            if (!user) {
                 return AppResponse.sendErrors({
                     res,
                     data: null,
                     message: "Admin Not Found!",
                     code: 403
                 });
-            } else {
-
-                req.user = admin;
-
-                next();
-            }
+            } 
 
         } else {
             return AppResponse.sendErrors({
@@ -50,6 +47,10 @@ const authMiddleware = async (req: authMiddlewareRequest, res: Response, next: N
                 code: 403
             });
         }
+
+        req.user = user;
+
+        next();
 
     } catch (error: any) {
 
