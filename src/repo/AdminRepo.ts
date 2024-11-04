@@ -2,7 +2,7 @@ import prisma from "../utils/client";
 
 class AdminRepo {
     // CREATE ADMIN METHOD
-    async createAdmin() {
+    async create() {
 
     }
 
