@@ -1,7 +1,7 @@
 import prisma from "./utils/client";
 import bcrypt from "bcryptjs";
 
-async function createAdmin() {
+async function create() {
 
     const hashPassword = bcrypt.hashSync("@jacobe123", 10);
 
@@ -24,7 +24,7 @@ async function createAdmin() {
 
 }
 
-createAdmin()
+create()
     .then(async () => {
         await prisma.$disconnect();
     })
