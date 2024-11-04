@@ -96,6 +96,17 @@ class AdminController {
     // CREATE ADMIN METHOD
     async create(req: Request, res: Response) {
 
+        try {
+            
+        } catch (error: any) {
+            return AppResponse.sendErrors({
+                res,
+                data: null,
+                message: error.message,
+                code: 500
+            });
+        }
+
     }
 
     // AUTHENTICATE OR LOG IN ADMIN METHOD
