@@ -16,8 +16,8 @@ class AdminController {
         this.testService = new TestService();
 
         this.test = this.test.bind(this);
-        this.index = this.index.bind(this);
-        this.createAdmin = this.createAdmin.bind(this);
+        this.dashboard = this.dashboard.bind(this);
+        this.create = this.create.bind(this);
         this.authenticate = this.authenticate.bind(this);
 
     }
@@ -54,7 +54,7 @@ class AdminController {
         }
     }
 
-    async index(req: authMiddlewareRequest, res: Response) {
+    async dashboard(req: authMiddlewareRequest, res: Response) {
 
         try {
 
@@ -94,7 +94,7 @@ class AdminController {
     }
 
     // CREATE ADMIN METHOD
-    async createAdmin(req: Request, res: Response) {
+    async create(req: Request, res: Response) {
 
     }
 
