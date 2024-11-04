@@ -6,7 +6,7 @@ const adminRoute = express.Router();
 const adminController = new AdminController();
 
 adminRoute.get("/test", adminController.test);
-adminRoute.get("/", authMiddleware, adminController.dashboard);
+adminRoute.get("/dashboard", authMiddleware, adminController.dashboard);
 adminRoute.post("/", authMiddleware, adminController.create);
 adminRoute.post("/authenticate", adminController.authenticate);
 
