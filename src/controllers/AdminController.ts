@@ -94,7 +94,7 @@ class AdminController {
     }
 
     // CREATE ADMIN METHOD
-    async createAdmin(req: Request, res: Response) {
+    async create(req: Request, res: Response) {
 
     }
 

@@ -6,8 +6,8 @@ const adminRoute = express.Router();
 const adminController = new AdminController();
 
 adminRoute.get("/test", adminController.test);
-adminRoute.get("/index", authMiddleware, adminController.index);
-adminRoute.post("/create", adminController.createAdmin);
+adminRoute.get("/index", authMiddleware, adminController.dashboard);
+adminRoute.post("/create", adminController.create);
 adminRoute.post("/authenticate", adminController.authenticate);
 
 export default adminRoute;
