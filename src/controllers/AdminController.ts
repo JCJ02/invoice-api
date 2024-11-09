@@ -94,18 +94,7 @@ class AdminController {
     }
 
     // CREATE ADMIN METHOD
-    async create(req: Request, res: Response) {
-
-        try {
-            
-        } catch (error: any) {
-            return AppResponse.sendErrors({
-                res,
-                data: null,
-                message: error.message,
-                code: 500
-            });
-        }
+    async createAdmin(req: Request, res: Response) {
 
     }
 
