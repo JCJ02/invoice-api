@@ -3,7 +3,7 @@ import AdminService from "../services/AdminService";
 import AppResponse from "../utils/AppResponse";
 import TestService from "../services/TestService";
 import { authMiddlewareRequest } from "../types/AuthMiddlewareType";
-import { authAdminSchema } from "../utils/validations/AdminSchema";
+import { authAdminSchema, createAdminSchema } from "../utils/validations/AdminSchema";
 
 class AdminController {
 
@@ -97,6 +97,37 @@ class AdminController {
     async create(req: Request, res: Response) {
 
         try {
+
+            const validation = createAdminSchema.safeParse(req.body);
+
+            if(validation.error) {
+                return AppResponse.sendErrors({
+                    res,
+                    data: null,
+                    message: validation.error.errors[0].message,
+                    code: 400
+                });
+            } else {
+
+                const createdAdmin = await this.adminService.create(validation.data);
+
+                if(!createdAdmin) {
+                    return AppResponse.sendErrors({
+                        res,
+                        data: null,
+                        message: "E-mail Is Already Exist!",
+                        code: 403
+                    });
+                } else {
+                    return AppResponse.sendSuccessful({
+                        res,
+                        data: createdAdmin,
+                        message: "Successfully Created!",
+                        code: 201
+                    });
+                }
+
+            }
             
         } catch (error: any) {
             return AppResponse.sendErrors({

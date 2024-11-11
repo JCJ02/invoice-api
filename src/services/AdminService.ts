@@ -1,6 +1,10 @@
 import AdminRepo from "../repo/AdminRepo";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/token";
+import { adminType } from "../types/AdminType";
+import prisma from "../utils/client";
+import { sendAccountDetails } from "../utils/SendAdminDetails";
+import { generatePassword } from "../utils/generatePassword";
 
 class AdminService {
 
@@ -13,14 +17,62 @@ class AdminService {
     }
 
     // CREATE ADMIN METHOD
-    async create() {
+    async create(data: adminType) {
+
+        const isEmailExist = await this.adminRepo.validateEmail(data.email);
+
+        if(isEmailExist) {
+            return null;
+        } else {
+
+            const generatedPassword = await generatePassword(10);
+            const hashPassword = bcrypt.hashSync(generatedPassword, 10);
+
+            const adminData = {
+                ...data,
+                password: hashPassword
+            }
+
+            const create = await prisma.$transaction(async (prismaTrasaction) => {
+
+                const newAdmin = await this.adminRepo.create(adminData, prismaTrasaction);
+
+                try {
+
+                    await sendAccountDetails({
+                        firstname: data.firstname,
+                        lastname: data.lastname,
+                        email: data.email,
+                        password: generatedPassword,
+                        to: data.email,
+                        subject: "Your Admin Account Details",
+                    });
+                    
+                } catch (error: any) {
+                    console.error("Failed To Send Email, Rolling Back Transaction: ", error);
+                    throw new Error("Email Sending Failed; Rolling Back Transaction");
+                }
+
+                return newAdmin;
+
+            });
+
+            return create;
+
+        }
 
     }
 
     // SHOW METHOD
     async show(id: number) {
 
-        return await this.adminRepo.show(id);
+        const isIdExist = await this.adminRepo.show(id);
+
+        if(!isIdExist) {
+            return null;
+        } else {
+            return isIdExist;
+        }
 
     }
 

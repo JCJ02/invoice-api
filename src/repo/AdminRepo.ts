@@ -1,8 +1,25 @@
+import { adminAccountType } from "../types/AdminType";
 import prisma from "../utils/client";
 
 class AdminRepo {
+
     // CREATE ADMIN METHOD
-    async create() {
+    async create(data: adminAccountType, prismaTransaction: any) {
+
+        const newAdmin = prismaTransaction.admin.create({
+            data: {
+                firstname: data.firstname,
+                lastname: data.lastname,
+                email: data.email,
+                account: {
+                    create: {
+                        password: data.password
+                    }
+                }
+            }
+        });
+
+        return newAdmin;
 
     }
 
@@ -17,6 +34,19 @@ class AdminRepo {
         });
 
         return admin;
+
+    }
+
+    // VALIDATE EMAIL ADDRESS METHOD
+    async validateEmail(email: string) {
+
+        const isEmailExist = prisma.admin.findFirst({
+            where: {
+                email: email
+            }
+        });
+
+        return isEmailExist;
 
     }
 
