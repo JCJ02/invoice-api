@@ -97,10 +97,10 @@ class AdminController {
     async create(req: Request, res: Response) {
 
         try {
-            
+
             const validation = createAdminSchema.safeParse(req.body);
 
-            if(validation.error) {
+            if (validation.error) {
                 return AppResponse.sendErrors({
                     res,
                     data: null,
@@ -111,7 +111,7 @@ class AdminController {
 
                 const createAdmin = await this.adminService.create(validation.data);
 
-                if(!createAdmin) {
+                if (!createAdmin) {
                     return AppResponse.sendErrors({
                         res,
                         data: null,

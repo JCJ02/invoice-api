@@ -21,7 +21,7 @@ class AdminService {
 
         const isEmailExist = await this.adminRepo.validateEmail(data.email);
 
-        if(isEmailExist) {
+        if (isEmailExist) {
             return null;
         } else {
 
@@ -47,7 +47,7 @@ class AdminService {
                         to: data.email,
                         subject: "Your Admin Account Details",
                     });
-                    
+
                 } catch (error: any) {
                     console.error("Failed To Send Email, Rolling Back Transaction: ", error);
                     throw new Error("Email Sending Failed; Rolling Back Transaction");
@@ -68,7 +68,7 @@ class AdminService {
 
         const isIdExist = await this.adminRepo.show(id);
 
-        if(!isIdExist) {
+        if (!isIdExist) {
             return null;
         } else {
             return isIdExist;
