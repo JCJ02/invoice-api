@@ -97,7 +97,7 @@ class AdminController {
     async create(req: Request, res: Response) {
 
         try {
-
+            
             const validation = createAdminSchema.safeParse(req.body);
 
             if(validation.error) {
@@ -105,13 +105,13 @@ class AdminController {
                     res,
                     data: null,
                     message: validation.error.errors[0].message,
-                    code: 400
+                    code: 500
                 });
             } else {
 
-                const createdAdmin = await this.adminService.create(validation.data);
+                const createAdmin = await this.adminService.create(validation.data);
 
-                if(!createdAdmin) {
+                if(!createAdmin) {
                     return AppResponse.sendErrors({
                         res,
                         data: null,
@@ -121,14 +121,14 @@ class AdminController {
                 } else {
                     return AppResponse.sendSuccessful({
                         res,
-                        data: createdAdmin,
+                        data: createAdmin,
                         message: "Successfully Created!",
                         code: 201
                     });
                 }
 
             }
-            
+
         } catch (error: any) {
             return AppResponse.sendErrors({
                 res,
