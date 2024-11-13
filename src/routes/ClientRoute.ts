@@ -16,7 +16,7 @@ clientRoute.get("/:id", authMiddleware, clientController.get);
 clientRoute.post("/create-invoices/:id", authMiddleware, clientController.createMany);
 clientRoute.put("/update-invoice/:id", authMiddleware, clientController.updateInvoice);
 clientRoute.delete("/delete-invoice/:id", authMiddleware, clientController.deleteInvoice);
-clientRoute.get("/retrive/invoices-list", authMiddleware, clientController.invoiceList);
-clientRoute.get("/retrive/:id", authMiddleware, clientController.getInvoice);
+clientRoute.get("/retrieve/invoice-list", authMiddleware, clientController.invoiceList);
+clientRoute.get("/retrieve/:id", authMiddleware, clientController.getInvoice);
 
 export default clientRoute;
