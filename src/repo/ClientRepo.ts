@@ -5,7 +5,7 @@ class ClientRepo {
 
     // CREATE CLIENT METHOD
     async create(data: clientType) {
-    
+
         const newClient = await prisma.$transaction(async (prisma) => {
             return await prisma.client.create({
                 data: {
@@ -64,7 +64,7 @@ class ClientRepo {
                 invoiceNumber: 'desc'
             }
         });
-    
+
         return isInvoiceNumberExist;
 
     }
@@ -76,10 +76,10 @@ class ClientRepo {
             ...invoice,
             clientId: id
         }));
-        
+
         const createManyInvoices = await prisma.invoices.createMany({
-          data: invoiceData,
-          skipDuplicates: true,  
+            data: invoiceData,
+            skipDuplicates: true,
         });
 
         return createManyInvoices;
@@ -125,7 +125,7 @@ class ClientRepo {
                         where: {
                             clientId: id,
                             deletedAt: null
-                        }, 
+                        },
                         data: {
                             deletedAt: new Date()
                         }
@@ -147,54 +147,54 @@ class ClientRepo {
             where: {
                 deletedAt: null,
                 OR: [
-                   {
+                    {
                         firstname: {
                             contains: query,
                             mode: "insensitive"
                         }
-                   },
-                   {
+                    },
+                    {
                         lastname: {
                             contains: query,
                             mode: "insensitive"
                         }
-                   },
-                   {
+                    },
+                    {
                         companyName: {
                             contains: query,
                             mode: "insensitive"
                         }
-                   },
-                   {
+                    },
+                    {
                         email: {
                             contains: query,
                             mode: "insensitive"
                         }
-                   },
-                   {
+                    },
+                    {
                         phoneNumber: {
                             contains: query,
                             mode: "insensitive"
                         }
-                   },
-                   {
+                    },
+                    {
                         businessPhone: {
                             contains: query,
                             mode: "insensitive"
                         }
-                   },
-                   {
+                    },
+                    {
                         mobilePhone: {
                             contains: query,
                             mode: "insensitive"
                         }
-                   },
-                   {
+                    },
+                    {
                         address: {
                             contains: query,
                             mode: "insensitive"
                         }
-                   }
+                    }
                 ]
             },
             orderBy: {
@@ -308,7 +308,7 @@ class ClientRepo {
     async invoiceList(query: string, skip: number, limit: number) {
         const parsedDate = !isNaN(Date.parse(query)) ? new Date(query) : undefined;
         const parsedNumber = !isNaN(Number(query)) ? Number(query) : undefined;
-    
+
         const clients = await prisma.client.findMany({
             skip: skip,
             take: limit,
@@ -365,7 +365,7 @@ class ClientRepo {
                 createdAt: "desc"
             }
         });
-    
+
         const totalClients = await prisma.client.count({
             where: {
                 deletedAt: null,
@@ -404,13 +404,13 @@ class ClientRepo {
                 ]
             },
         });
-    
+
         return {
             clients,
             totalClients,
         };
     }
-    
+
 
 }
 

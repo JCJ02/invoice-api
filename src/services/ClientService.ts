@@ -14,7 +14,7 @@ class ClientService {
 
     // CREATE CLIENT METHOD
     async create(data: clientType) {
-        
+
         const clientData = {
             ...data
         }
@@ -30,7 +30,7 @@ class ClientService {
 
         const isClientExist = await this.clientRepo.show(id);
 
-        if(!isClientExist) {
+        if (!isClientExist) {
             return null;
         } else {
             return isClientExist;
@@ -43,7 +43,7 @@ class ClientService {
 
         const isInvoiceExist = await this.clientRepo.retrieve(id);
 
-        if(!isInvoiceExist) {
+        if (!isInvoiceExist) {
             return null;
         } else {
             return isInvoiceExist;
@@ -54,9 +54,9 @@ class ClientService {
     // CREATE INVOICES METHOD
     async createMany(id: number, data: any[]) {
 
-        const clientId = await this.clientRepo.show(id); 
+        const clientId = await this.clientRepo.show(id);
 
-        if(!clientId) {
+        if (!clientId) {
             return null;
         }
 
@@ -103,7 +103,7 @@ class ClientService {
 
         const client = await this.clientRepo.show(id);
 
-        if(!client) {
+        if (!client) {
             return null;
         } else {
 
@@ -124,7 +124,7 @@ class ClientService {
 
         const client = await this.clientRepo.show(id);
 
-        if(!client) {
+        if (!client) {
             return null;
         } else {
 
@@ -137,10 +137,10 @@ class ClientService {
 
     // GET CLIENT METHOD
     async get(id: number) {
-        
+
         const client = await this.clientRepo.show(id);
 
-        if(!client) {
+        if (!client) {
             return null;
         } else {
             return client;
@@ -160,7 +160,7 @@ class ClientService {
         const searchResults = await this.clientRepo.list(query, skip, limit);
 
         return searchResults;
-        
+
     }
 
     // UPDATE INVOICE METHOD
@@ -168,7 +168,7 @@ class ClientService {
 
         const invoice = await this.clientRepo.retrieve(id);
 
-        if(!invoice) {
+        if (!invoice) {
             return null;
         } else {
 
@@ -194,7 +194,7 @@ class ClientService {
 
         const invoice = await this.clientRepo.retrieve(id);
 
-        if(!invoice) {
+        if (!invoice) {
             return null;
         } else {
 
@@ -208,10 +208,10 @@ class ClientService {
 
     // GET INVOICE METHOD 
     async getInvoice(id: number) {
-        
+
         const invoice = await this.clientRepo.retrieve(id);
 
-        if(!invoice) {
+        if (!invoice) {
             return null;
         } else {
             return invoice;
@@ -231,7 +231,7 @@ class ClientService {
         const searchResults = await this.clientRepo.invoiceList(query, skip, limit);
 
         return searchResults;
-        
+
     }
 
 }

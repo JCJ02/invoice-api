@@ -26,12 +26,12 @@ class ClientController {
 
     // CREATE CLIENT METHOD
     async create(req: Request, res: Response) {
-        
+
         try {
 
             const validateClientData = createClientSchema.safeParse(req.body);
 
-            if(validateClientData.error) {
+            if (validateClientData.error) {
                 return AppResponse.sendErrors({
                     res,
                     data: null,
@@ -42,7 +42,7 @@ class ClientController {
 
                 const isClientDataValid = await this.clientService.create(validateClientData.data);
 
-                if(!isClientDataValid) {
+                if (!isClientDataValid) {
                     return AppResponse.sendErrors({
                         res,
                         data: null,
@@ -59,7 +59,7 @@ class ClientController {
                 }
 
             }
-            
+
         } catch (error: any) {
             return AppResponse.sendErrors({
                 res,
@@ -76,10 +76,10 @@ class ClientController {
         try {
 
             const id = Number(req.params.id);
-            
+
             const validation = createInvoicesArraySchema.safeParse(req.body.invoices);
 
-            if(validation.error) {
+            if (validation.error) {
                 return AppResponse.sendErrors({
                     res,
                     data: null,
@@ -92,7 +92,7 @@ class ClientController {
 
                 const areInvoicesValid = await this.clientService.createMany(id, validation.data);
 
-                if(!areInvoicesValid) {
+                if (!areInvoicesValid) {
                     return AppResponse.sendErrors({
                         res,
                         data: null,
@@ -126,12 +126,12 @@ class ClientController {
     async update(req: Request, res: Response) {
 
         try {
-            
+
             const clientId = Number(req.params.id);
 
             const validateClientData = updateClientSchema.safeParse(req.body);
 
-            if(validateClientData.error) {
+            if (validateClientData.error) {
                 return AppResponse.sendErrors({
                     res,
                     data: null,
@@ -142,7 +142,7 @@ class ClientController {
 
                 const isClientUpdated = await this.clientService.update(clientId, validateClientData.data);
 
-                if(!isClientUpdated) {
+                if (!isClientUpdated) {
                     return AppResponse.sendErrors({
                         res,
                         data: null,
@@ -180,7 +180,7 @@ class ClientController {
 
             const isClientDeleted = await this.clientService.delete(clientId);
 
-            if(!isClientDeleted) {
+            if (!isClientDeleted) {
                 return AppResponse.sendErrors({
                     res,
                     data: null,
@@ -195,7 +195,7 @@ class ClientController {
                     code: 200
                 });
             }
-            
+
         } catch (error: any) {
             return AppResponse.sendErrors({
                 res,
@@ -209,14 +209,14 @@ class ClientController {
 
     // GET CLIENT METHOD
     async get(req: Request, res: Response) {
-        
+
         try {
-            
+
             const clientId = Number(req.params.id);
 
             const isClientExist = await this.clientService.get(clientId);
 
-            if(!isClientExist) {
+            if (!isClientExist) {
                 return AppResponse.sendErrors({
                     res,
                     data: null,
@@ -258,7 +258,7 @@ class ClientController {
                 message: "Result!",
                 code: 200
             });
-            
+
         } catch (error: any) {
             return AppResponse.sendErrors({
                 res,
@@ -267,7 +267,7 @@ class ClientController {
                 code: 500
             });
         }
-        
+
     }
 
     // UPDATE INVOICE METHOD
@@ -279,7 +279,7 @@ class ClientController {
 
             const validateInvoiceData = updateInvoiceSchema.safeParse(req.body);
 
-            if(validateInvoiceData.error) {
+            if (validateInvoiceData.error) {
                 return AppResponse.sendErrors({
                     res,
                     data: null,
@@ -290,7 +290,7 @@ class ClientController {
 
                 const isInvoiceUpdated = await this.clientService.updateInvoice(invoiceId, validateInvoiceData.data);
 
-                if(!isInvoiceUpdated) {
+                if (!isInvoiceUpdated) {
                     return AppResponse.sendErrors({
                         res,
                         data: null,
@@ -307,7 +307,7 @@ class ClientController {
                 }
 
             }
-            
+
         } catch (error: any) {
             return AppResponse.sendErrors({
                 res,
@@ -325,10 +325,10 @@ class ClientController {
         try {
 
             const invoiceId = Number(req.params.id);
-            
+
             const isInvoiceDeleted = await this.clientService.deleteInvoice(invoiceId);
 
-            if(!isInvoiceDeleted) {
+            if (!isInvoiceDeleted) {
                 return AppResponse.sendErrors({
                     res,
                     data: null,
@@ -364,7 +364,7 @@ class ClientController {
 
             const isInvoiceExist = await this.clientService.getInvoice(invoiceId);
 
-            if(!isInvoiceExist) {
+            if (!isInvoiceExist) {
                 return AppResponse.sendErrors({
                     res,
                     data: null,
@@ -379,7 +379,7 @@ class ClientController {
                     code: 200
                 });
             }
-            
+
         } catch (error: any) {
             return AppResponse.sendErrors({
                 res,
@@ -404,7 +404,7 @@ class ClientController {
                 message: "Result!",
                 code: 200
             });
-            
+
         } catch (error: any) {
             return AppResponse.sendErrors({
                 res,
