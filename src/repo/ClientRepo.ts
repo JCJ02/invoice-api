@@ -306,13 +306,16 @@ class ClientRepo {
 
     // INVOICE LIST w/ SEARCH AND PAGINATION
     async invoiceList(query: string, skip: number, limit: number) {
+
+        // const parsedDate = !isNaN(Date.parse(query)) ? new Date(query) : undefined;
+        // const parsedNumber = !isNaN(Number(query)) ? Number(query) : undefined;
         
         const clients = await prisma.client.findMany({
             skip: skip,
             take: limit,
             where: {
                 deletedAt: null,
-                OR: [
+                OR: [   
                    {
                         companyName: {
                             contains: query,
@@ -325,7 +328,39 @@ class ClientRepo {
                                 invoiceNumber: {
                                     contains: query,
                                     mode: "insensitive"
-                                }
+                                },
+                                // description: {
+                                //     contains: query,
+                                //     mode: "insensitive"
+                                // },
+                                // issuedDate: isNaN(Date.parse(query)) ? undefined : {
+                                //     equals: new Date(query)
+                                // },
+                                // dueDate: isNaN(Date.parse(query)) ? undefined : {
+                                //     equals: new Date(query)
+                                // },
+                                // totalOutstanding: isNaN(Number(query)) ? undefined : {
+                                //     equals: Number(query)
+                                // }
+                                // description: {
+                                //     contains: query,
+                                //     mode: "insensitive"
+                                // },
+                                // ...(parsedDate && {
+                                //     issuedDate: {
+                                //         gte: new Date(parsedDate.setHours(0, 0, 0)),
+                                //         lt: new Date(parsedDate.setHours(23, 59, 59))
+                                //     },
+                                //     dueDate: {
+                                //         gte: new Date(parsedDate.setHours(0, 0, 0)),
+                                //         lt: new Date(parsedDate.setHours(23, 59, 59))
+                                //     }
+                                // }),
+                                // ...(parsedNumber && {
+                                //     totalOutstanding: {
+                                //         equals: parsedNumber
+                                //     }
+                                // })
                             },
                         }
                    }
@@ -338,7 +373,10 @@ class ClientRepo {
                     },
                     select: {
                         invoiceNumber: true,
-                        // description: true
+                        description: true,
+                        issuedDate: true,
+                        dueDate: true,
+                        totalOutstanding: true
                     }
                 }
             },
@@ -367,7 +405,35 @@ class ClientRepo {
                                 // description: {
                                 //     contains: query,
                                 //     mode: "insensitive"
+                                // },
+                                // issuedDate: isNaN(Date.parse(query)) ? undefined : {
+                                //     equals: new Date(query)
+                                // },
+                                // dueDate: isNaN(Date.parse(query)) ? undefined : {
+                                //     equals: new Date(query)
+                                // },
+                                // totalOutstanding: isNaN(Number(query)) ? undefined : {
+                                //     equals: Number(query)
                                 // }
+                                // description: {
+                                //     contains: query,
+                                //     mode: "insensitive"
+                                // },
+                                // ...(parsedDate && {
+                                //     issuedDate: {
+                                //         gte: new Date(parsedDate.setHours(0, 0, 0)),
+                                //         lt: new Date(parsedDate.setHours(23, 59, 59))
+                                //     },
+                                //     dueDate: {
+                                //         gte: new Date(parsedDate.setHours(0, 0, 0)),
+                                //         lt: new Date(parsedDate.setHours(23, 59, 59))
+                                //     }
+                                // }),
+                                // ...(parsedNumber && {
+                                //     totalOutstanding: {
+                                //         equals: parsedNumber
+                                //     }
+                                // })
                             }
                         }
                    }
@@ -381,102 +447,6 @@ class ClientRepo {
         };
 
     }
-
-    // async invoiceList(query: string, skip: number, limit: number) {
-
-    //     // const isNumericQuery = !isNaN(Number(query));
-    
-    //     const clients = await prisma.client.findMany({
-    //         skip: skip,
-    //         take: limit,
-    //         where: {
-    //             deletedAt: null,
-    //             OR: [
-    //                 {
-    //                     companyName: {
-    //                         contains: query,
-    //                         mode: "insensitive"
-    //                     }
-    //                 },
-    //                 {
-    //                     invoices: {
-    //                         some: {
-    //                             invoiceNumber: {
-    //                                 contains: query,
-    //                                 mode: "insensitive"
-    //                             },
-    //                             description: {
-    //                                 contains: query,
-    //                                 mode: "insensitive"
-    //                             }
-    //                         }
-    //                     }
-    //                 },
-    //             ]
-    //         },
-    //         include: {
-    //             invoices: {
-    //                 where: {
-    //                     deletedAt: null
-    //                 },
-    //                 orderBy: {
-    //                     createdAt: 'desc'
-    //                 },
-    //                 select: {
-    //                     id: true,
-    //                     invoiceNumber: true,
-    //                     description: true,
-    //                     rate: true,
-    //                     quantity: true,
-    //                     totalOutstanding: true,
-    //                     dueDate: true,
-    //                     issuedDate: true,
-    //                     createdAt: true,
-    //                     updatedAt: true,
-    //                     deletedAt: true
-    //                 }
-    //             }
-    //         },
-    //         orderBy: {
-    //             createdAt: "desc"
-    //         }
-    //     });
-    
-    //     const totalClients = await prisma.client.count({
-    //         where: {
-    //             deletedAt: null,
-    //             OR: [
-    //                 {
-    //                     companyName: {
-    //                         contains: query,
-    //                         mode: "insensitive"
-    //                     }
-    //                 },
-    //                 {
-    //                     invoices: {
-    //                         some: {
-    //                             invoiceNumber: {
-    //                                 contains: query,
-    //                                 mode: "insensitive"
-    //                             },
-    //                             description: {
-    //                                 contains: query,
-    //                                 mode: "insensitive"
-    //                             }
-    //                         }
-    //                     }
-    //                 }
-    //             ]
-    //         }
-    //     });
-    
-    //     return {
-    //         clients,
-    //         totalClients,
-    //     };
-    // }
-    
-
 
 }
 
