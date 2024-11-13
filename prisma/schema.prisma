@@ -36,7 +36,7 @@ model Account {
 }
 
 model Client {
-  id            Int       @id @default(autoincrement())
+  id            Int        @id @default(autoincrement())
   firstname     String
   lastname      String
   email         String?
@@ -45,22 +45,23 @@ model Client {
   businessPhone String?
   mobilePhone   String?
   address       String?
-  invoice       Invoice[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
   deletedAt     DateTime?
+  invoices      Invoices[]
 }
 
-model Invoice {
+model Invoices {
   id               Int       @id @default(autoincrement())
   invoiceNumber    String
   clientId         Int?
   description      String?
-  rate             Int?
-  quantity         Int?
-  lineTotal        Int?
-  issuedDate       DateTime
-  totalOutstanding Int
+  rate             Decimal?  @default(0.00) @db.Decimal(65, 2)
+  quantity         Decimal?  @default(0.00) @db.Decimal(65, 2)
+  lineTotal        Decimal?  @default(0.00) @db.Decimal(65, 2)
+  issuedDate       DateTime  @default(now())
+  dueDate          DateTime?
+  totalOutstanding Decimal?  @default(0.00) @db.Decimal(65, 2)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   deletedAt        DateTime?

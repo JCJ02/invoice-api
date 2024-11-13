@@ -6,7 +6,7 @@ class AdminRepo {
     // CREATE ADMIN METHOD
     async create(data: adminAccountType, prismaTransaction: any) {
 
-        const newAdmin = prismaTransaction.admin.create({
+        const newAdmin = await prismaTransaction.admin.create({
             data: {
                 firstname: data.firstname,
                 lastname: data.lastname,
@@ -26,7 +26,7 @@ class AdminRepo {
     // SHOW METHOD
     async show(id: number) {
 
-        const admin = prisma.admin.findFirst({
+        const admin = await prisma.admin.findFirst({
             where: {
                 id: id,
                 deletedAt: null
@@ -40,7 +40,7 @@ class AdminRepo {
     // VALIDATE EMAIL ADDRESS METHOD
     async validateEmail(email: string) {
 
-        const isEmailExist = prisma.admin.findFirst({
+        const isEmailExist = await prisma.admin.findFirst({
             where: {
                 email: email
             }
