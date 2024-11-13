@@ -13,5 +13,7 @@ clientRoute.get("/", authMiddleware, clientController.list);
 clientRoute.put("/update-invoice/:id", clientController.updateInvoice);
 clientRoute.delete("/delete-invoice/:id", clientController.deleteInvoice);
 clientRoute.get("/invoice-list", authMiddleware, clientController.invoiceList);
+clientRoute.get("/:id", clientController.get);
+clientRoute.get("/retrive/:id", clientController.getInvoice);
 
 export default clientRoute;
