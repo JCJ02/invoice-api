@@ -306,31 +306,29 @@ class ClientRepo {
 
     // INVOICE LIST w/ SEARCH AND PAGINATION
     async invoiceList(query: string, skip: number, limit: number) {
+        
         const clients = await prisma.client.findMany({
             skip: skip,
             take: limit,
             where: {
                 deletedAt: null,
                 OR: [
-                    {
+                   {
                         companyName: {
                             contains: query,
                             mode: "insensitive"
                         }
-                    },
-                    {
+                   },
+                   {
                         invoices: {
                             some: {
-                                description: {
+                                invoiceNumber: {
                                     contains: query,
                                     mode: "insensitive"
-                                },
-                                totalOutstanding: isNaN(Number(query)) ? undefined : {
-                                    equals: Number(query)
                                 }
-                            }
+                            },
                         }
-                    },
+                   }
                 ]
             },
             include: {
@@ -338,21 +336,9 @@ class ClientRepo {
                     where: {
                         deletedAt: null
                     },
-                    orderBy: {
-                        createdAt: 'desc'
-                    },
                     select: {
-                        id: true,
                         invoiceNumber: true,
-                        description: true,
-                        rate: true,
-                        quantity: true,
-                        totalOutstanding: true,
-                        dueDate: true,
-                        issuedDate: true,
-                        createdAt: true,
-                        updatedAt: true,
-                        deletedAt: true
+                        // description: true
                     }
                 }
             },
@@ -374,25 +360,122 @@ class ClientRepo {
                     {
                         invoices: {
                             some: {
-                                description: {
+                                invoiceNumber: {
                                     contains: query,
                                     mode: "insensitive"
                                 },
-                                totalOutstanding: isNaN(Number(query)) ? undefined : {
-                                    equals: Number(query)
-                                }
+                                // description: {
+                                //     contains: query,
+                                //     mode: "insensitive"
+                                // }
                             }
                         }
-                    }
+                   }
                 ]
-            }
+            },
         });
 
         return {
             clients,
             totalClients,
         };
+
     }
+
+    // async invoiceList(query: string, skip: number, limit: number) {
+
+    //     // const isNumericQuery = !isNaN(Number(query));
+    
+    //     const clients = await prisma.client.findMany({
+    //         skip: skip,
+    //         take: limit,
+    //         where: {
+    //             deletedAt: null,
+    //             OR: [
+    //                 {
+    //                     companyName: {
+    //                         contains: query,
+    //                         mode: "insensitive"
+    //                     }
+    //                 },
+    //                 {
+    //                     invoices: {
+    //                         some: {
+    //                             invoiceNumber: {
+    //                                 contains: query,
+    //                                 mode: "insensitive"
+    //                             },
+    //                             description: {
+    //                                 contains: query,
+    //                                 mode: "insensitive"
+    //                             }
+    //                         }
+    //                     }
+    //                 },
+    //             ]
+    //         },
+    //         include: {
+    //             invoices: {
+    //                 where: {
+    //                     deletedAt: null
+    //                 },
+    //                 orderBy: {
+    //                     createdAt: 'desc'
+    //                 },
+    //                 select: {
+    //                     id: true,
+    //                     invoiceNumber: true,
+    //                     description: true,
+    //                     rate: true,
+    //                     quantity: true,
+    //                     totalOutstanding: true,
+    //                     dueDate: true,
+    //                     issuedDate: true,
+    //                     createdAt: true,
+    //                     updatedAt: true,
+    //                     deletedAt: true
+    //                 }
+    //             }
+    //         },
+    //         orderBy: {
+    //             createdAt: "desc"
+    //         }
+    //     });
+    
+    //     const totalClients = await prisma.client.count({
+    //         where: {
+    //             deletedAt: null,
+    //             OR: [
+    //                 {
+    //                     companyName: {
+    //                         contains: query,
+    //                         mode: "insensitive"
+    //                     }
+    //                 },
+    //                 {
+    //                     invoices: {
+    //                         some: {
+    //                             invoiceNumber: {
+    //                                 contains: query,
+    //                                 mode: "insensitive"
+    //                             },
+    //                             description: {
+    //                                 contains: query,
+    //                                 mode: "insensitive"
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             ]
+    //         }
+    //     });
+    
+    //     return {
+    //         clients,
+    //         totalClients,
+    //     };
+    // }
+    
 
 
 }
