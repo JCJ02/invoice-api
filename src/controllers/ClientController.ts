@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import ClientService from "../services/ClientService";
 import AppResponse from "../utils/AppResponse";
-import { createClientSchema, createInvoicesArraySchema, updateClientSchema, updateInvoiceSchema } from "../utils/validations/ClientSchema";
+import { createClientSchema, updateClientSchema } from "../utils/validations/ClientSchema";
+import { createInvoicesArraySchema, updateInvoiceSchema } from "../utils/validations/InvoiceSchema";
 
 class ClientController {
 
@@ -19,6 +20,7 @@ class ClientController {
         this.updateInvoice = this.updateInvoice.bind(this);
         this.deleteInvoice = this.deleteInvoice.bind(this);
         this.invoiceList = this.invoiceList.bind(this);
+        this.get = this.get.bind(this);
 
     }
 
@@ -205,6 +207,44 @@ class ClientController {
 
     }
 
+    // GET CLIENT METHOD
+    async get(req: Request, res: Response) {
+        
+        try {
+            
+            const clientId = Number(req.params.id);
+
+            const isClientExist = await this.clientService.get(clientId);
+
+            if(!isClientExist) {
+                return AppResponse.sendErrors({
+                    res,
+                    data: null,
+                    message: "Failed To Retrieve!",
+                    code: 403
+                });
+            } else {
+                return AppResponse.sendSuccessful({
+                    res,
+                    data: {
+                        client: isClientExist
+                    },
+                    message: "Successfully Retrived!",
+                    code: 200
+                });
+            }
+
+        } catch (error: any) {
+            return AppResponse.sendErrors({
+                res,
+                data: null,
+                message: error.message,
+                code: 500
+            });
+        }
+
+    }
+
     // CLIENT LIST w/ SEARCH AND PAGINATION
     async list(req: Request, res: Response) {
 
@@ -304,6 +344,42 @@ class ClientController {
                 });
             }
 
+        } catch (error: any) {
+            return AppResponse.sendErrors({
+                res,
+                data: null,
+                message: error.message,
+                code: 500
+            });
+        }
+
+    }
+
+    // GET INVOICE METHOD
+    async getInvoice(req: Request, res: Response) {
+
+        try {
+
+            const invoiceId = Number(req.params.id);
+
+            const isInvoiceExist = await this.clientService.getInvoice(invoiceId);
+
+            if(!isInvoiceExist) {
+                return AppResponse.sendErrors({
+                    res,
+                    data: null,
+                    message: "Failed To Retrieve!",
+                    code: 403
+                });
+            } else {
+                return AppResponse.sendSuccessful({
+                    res,
+                    data: null,
+                    message: "Successfully Retrieved!",
+                    code: 200
+                });
+            }
+            
         } catch (error: any) {
             return AppResponse.sendErrors({
                 res,

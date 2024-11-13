@@ -135,6 +135,19 @@ class ClientService {
 
     }
 
+    // GET CLIENT METHOD
+    async get(id: number) {
+        
+        const client = await this.clientRepo.show(id);
+
+        if(!client) {
+            return null;
+        } else {
+            return client;
+        }
+
+    }
+
     // CLIENT LIST w/ SEARCH AND PAGINATION
     async list(req: Request) {
 
@@ -189,6 +202,19 @@ class ClientService {
 
             return removeInvoice;
 
+        }
+
+    }
+
+    // GET INVOICE METHOD 
+    async getInvoice(id: number) {
+        
+        const invoice = await this.clientRepo.retrieve(id);
+
+        if(!invoice) {
+            return null;
+        } else {
+            return invoice;
         }
 
     }
