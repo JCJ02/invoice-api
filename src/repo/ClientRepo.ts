@@ -330,12 +330,12 @@ class ClientRepo {
                                 },
                                 ...(parsedDate && {
                                     issuedDate: {
-                                        gte: new Date(parsedDate.setHours(0, 0, 0)),
-                                        lt: new Date(parsedDate.setHours(23, 59, 59))
-                                    },
+                                        equals: parsedDate
+                                    }
+                                }),
+                                ...(parsedDate && {
                                     dueDate: {
-                                        gte: new Date(parsedDate.setHours(0, 0, 0)),
-                                        lt: new Date(parsedDate.setHours(23, 59, 59))
+                                        equals: parsedDate
                                     }
                                 }),
                                 ...(parsedNumber && {
@@ -366,6 +366,8 @@ class ClientRepo {
             }
         });
 
+        console.log("Final Query:", JSON.stringify(clients, null, 2));
+
         const totalClients = await prisma.client.count({
             where: {
                 deletedAt: null,
@@ -385,12 +387,12 @@ class ClientRepo {
                                 },
                                 ...(parsedDate && {
                                     issuedDate: {
-                                        gte: new Date(parsedDate.setHours(0, 0, 0)),
-                                        lt: new Date(parsedDate.setHours(23, 59, 59))
-                                    },
+                                        equals: parsedDate
+                                    }
+                                }),
+                                ...(parsedDate && {
                                     dueDate: {
-                                        gte: new Date(parsedDate.setHours(0, 0, 0)),
-                                        lt: new Date(parsedDate.setHours(23, 59, 59))
+                                        equals: parsedDate
                                     }
                                 }),
                                 ...(parsedNumber && {
@@ -410,6 +412,7 @@ class ClientRepo {
             totalClients,
         };
     }
+
 
 
 }
