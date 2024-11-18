@@ -304,45 +304,39 @@ class ClientRepo {
 
     }
 
-    // INVOICE LIST w/ SEARCH AND PAGINATION
     async invoiceList(query: string, skip: number, limit: number) {
         const parsedDate = !isNaN(Date.parse(query)) ? new Date(query) : undefined;
         const parsedNumber = !isNaN(Number(query)) ? Number(query) : undefined;
 
+        const invoiceFilters = [];
+
+        if (parsedDate) {
+            invoiceFilters.push({ issuedDate: { equals: parsedDate } });
+            invoiceFilters.push({ dueDate: { equals: parsedDate } });
+        }
+
+        if (parsedNumber !== undefined) {
+            invoiceFilters.push({ totalOutstanding: { equals: parsedNumber } });
+        }
+    
         const clients = await prisma.client.findMany({
-            skip: skip,
+            skip,
             take: limit,
             where: {
                 deletedAt: null,
                 OR: [
                     {
-                        companyName: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
+                        companyName: { contains: query, mode: "insensitive" }
                     },
                     {
                         invoices: {
                             some: {
-                                invoiceNumber: {
-                                    contains: query,
-                                    mode: "insensitive"
-                                },
-                                ...(parsedDate && {
-                                    issuedDate: {
-                                        equals: parsedDate
-                                    }
-                                }),
-                                ...(parsedDate && {
-                                    dueDate: {
-                                        equals: parsedDate
-                                    }
-                                }),
-                                ...(parsedNumber && {
-                                    totalOutstanding: {
-                                        equals: parsedNumber
-                                    }
-                                })
+                                clientId: { not: null },
+                                OR: [
+                                    { invoiceNumber: { contains: query, mode: "insensitive" } },
+                                    { description: { contains: query, mode: "insensitive" } },
+                                    ...invoiceFilters
+                                ]
                             }
                         }
                     }
@@ -350,68 +344,46 @@ class ClientRepo {
             },
             include: {
                 invoices: {
-                    where: {
-                        deletedAt: null
-                    },
+                    where: { deletedAt: null },
                     select: {
                         invoiceNumber: true,
+                        description: true,
                         issuedDate: true,
                         dueDate: true,
                         totalOutstanding: true
                     }
                 }
             },
-            orderBy: {
-                createdAt: "desc"
-            }
+            orderBy: { createdAt: "desc" }
         });
-
-        console.log("Final Query:", JSON.stringify(clients, null, 2));
-
+    
         const totalClients = await prisma.client.count({
             where: {
                 deletedAt: null,
                 OR: [
                     {
-                        companyName: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
+                        companyName: { contains: query, mode: "insensitive" }
                     },
                     {
                         invoices: {
                             some: {
-                                invoiceNumber: {
-                                    contains: query,
-                                    mode: "insensitive"
-                                },
-                                ...(parsedDate && {
-                                    issuedDate: {
-                                        equals: parsedDate
-                                    }
-                                }),
-                                ...(parsedDate && {
-                                    dueDate: {
-                                        equals: parsedDate
-                                    }
-                                }),
-                                ...(parsedNumber && {
-                                    totalOutstanding: {
-                                        equals: parsedNumber
-                                    }
-                                })
+                                clientId: { not: null },
+                                OR: [
+                                    { invoiceNumber: { contains: query, mode: "insensitive" } },
+                                    { description: { contains: query, mode: "insensitive" } },
+                                    ...invoiceFilters
+                                ]
                             }
                         }
                     }
                 ]
-            },
+            }
         });
-
-        return {
-            clients,
-            totalClients,
-        };
+    
+        return { clients, totalClients };
     }
+    
+    
 
 
 
