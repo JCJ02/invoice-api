@@ -49,7 +49,7 @@ class AdminService {
                     });
 
                 } catch (error: any) {
-                    console.error("Failed To Send Email, Rolling Back Transaction: ", error);
+                    console.error("Failed To Send Email, Rolling Back Transaction: ", error.stack);
                     throw new Error("Email Sending Failed; Rolling Back Transaction");
                 }
 
