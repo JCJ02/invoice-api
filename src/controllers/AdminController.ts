@@ -169,7 +169,7 @@ class AdminController {
                     return AppResponse.sendSuccessful({
                         res,
                         data: result,
-                        message: "Log In Successfully!",
+                        message: "Logged In Successfully!",
                         code: 200
                     });
                 }
