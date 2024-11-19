@@ -25,7 +25,7 @@ const authAdminSchema = z.object({
     password: z.string({
         required_error: "Password Is Required!"
     }).min(8, "Password Must Be At Least 8 Characters Long!")
-        .regex(/^(?=.*[0-9])(?=.*[!@#$%^&*])/, "Password Must Containt At Least One Number And One Special Character!"),
+        .regex(/^(?=.*[0-9])(?=.*[!@#$%^&*])/, "Password Must Contain At Least One Number And One Special Character!"),
 });
 
 export {
