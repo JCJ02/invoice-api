@@ -93,11 +93,23 @@ class AdminService {
 
         const token = generateToken({
             id: admin.id,
+            firstname: admin.firstname,
+            lastname: admin.lastname,
+            email: admin.email,
             role: admin.role
         });
         // console.log(`Admin ID: ${admin.id}, Admin Role: ${admin.role}`);
 
-        return token;
+        return {
+            token: token,
+            admin: {
+                id: admin.id,
+                firstname: admin.firstname,
+                lastname: admin.lastname,
+                email: admin.email,
+                role: admin.role
+            }
+        };
 
     }
 
