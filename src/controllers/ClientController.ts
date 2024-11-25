@@ -21,6 +21,7 @@ class ClientController {
         this.deleteInvoice = this.deleteInvoice.bind(this);
         this.invoiceList = this.invoiceList.bind(this);
         this.get = this.get.bind(this);
+        this.getInvoice = this.getInvoice.bind(this);
 
     }
 
@@ -374,7 +375,7 @@ class ClientController {
             } else {
                 return AppResponse.sendSuccessful({
                     res,
-                    data: null,
+                    data: isInvoiceExist,
                     message: "Successfully Retrieved!",
                     code: 200
                 });
