@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 
 const generateToken = (payload: any) => {
 
@@ -18,9 +18,22 @@ const generateToken = (payload: any) => {
 
 const verifyToken = (token: string) => {
 
-    const verifiedToken = jwt.verify(token, process.env.JWT_SECRET_KEY as string);
+    if (!process.env.JWT_SECRET_KEY) {
+        throw new Error("JWT_SECRET_KEY Is Not Defined In Environment Variables File!");
+    }
 
-    return verifiedToken;
+    try {
+        const verifiedToken = jwt.verify(token, process.env.JWT_SECRET_KEY as string);
+        return verifiedToken;
+    } catch (error) {
+        if (error instanceof JsonWebTokenError) {
+            throw new Error("Invalid Token");
+        }
+        if (error instanceof TokenExpiredError) {
+            throw new Error("Token Expired");
+        }
+        throw new Error("Token Verification Failed");
+    }
 
 }
 
