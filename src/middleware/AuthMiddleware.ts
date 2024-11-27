@@ -13,7 +13,7 @@ const authMiddleware = async (req: authMiddlewareRequest, res: Response, next: N
 
         const token = req.headers.authorization?.split(' ')[1];
 
-        if (!token) {
+        if (!token || token.trim() === "") {
             return AppResponse.sendErrors({
                 res,
                 data: null,
