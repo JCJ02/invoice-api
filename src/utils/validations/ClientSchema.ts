@@ -8,10 +8,7 @@ const createClientSchema = z.object({
     email: z.string().refine(value => value === "" || /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value), {
         message: "Must Be A Valid E-mail!",
       }).optional().nullable(),
-    companyName: z.string({
-        required_error: "Company Name Is Required!",
-        invalid_type_error: "Company Name Must Be String!"
-    }).min(3, "Company Name Must Be At Least 3 Characters Long!")
+    companyName: z.string().min(1, "Company Name Is Required!")
         .max(255, "Company Name Must Not Exceed To 255 Characters"),
     phoneNumber: z.string().optional().nullable(),
     businessPhone: z.string().optional().nullable(),
