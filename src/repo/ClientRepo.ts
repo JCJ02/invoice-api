@@ -304,6 +304,7 @@ class ClientRepo {
 
     }
 
+    // INVOICE LIST w/ SEARCH AND PAGINATION
     async invoiceList(query: string, skip: number, limit: number) {
         const parsedDate = !isNaN(Date.parse(query)) ? new Date(query) : undefined;
         const parsedNumber = !isNaN(Number(query)) ? Number(query) : undefined;
@@ -318,20 +319,31 @@ class ClientRepo {
         if (parsedNumber !== undefined) {
             invoiceFilters.push({ totalOutstanding: { equals: parsedNumber } });
         }
-    
+
         const clients = await prisma.client.findMany({
             skip,
             take: limit,
             where: {
                 deletedAt: null,
+                invoices: {
+                    some: {
+                        deletedAt: null,
+                        OR: [
+                            { invoiceNumber: { contains: query, mode: "insensitive" } },
+                            { description: { contains: query, mode: "insensitive" } },
+                            ...invoiceFilters
+                        ]
+                    }
+                },
                 OR: [
                     {
+                        deletedAt: null,
                         companyName: { contains: query, mode: "insensitive" }
                     },
                     {
                         invoices: {
                             some: {
-                                clientId: { not: null },
+                                deletedAt: null,
                                 OR: [
                                     { invoiceNumber: { contains: query, mode: "insensitive" } },
                                     { description: { contains: query, mode: "insensitive" } },
@@ -344,44 +356,38 @@ class ClientRepo {
             },
             include: {
                 invoices: {
-                    where: { deletedAt: null },
-                    select: {
-                        invoiceNumber: true,
-                        description: true,
-                        issuedDate: true,
-                        dueDate: true,
-                        totalOutstanding: true
+                    where: { 
+                        deletedAt: null,
+                        OR: [
+                            { invoiceNumber: { contains: query, mode: "insensitive" } },
+                            { description: { contains: query, mode: "insensitive" } },
+                            ...invoiceFilters
+                        ]
                     }
                 }
             },
             orderBy: { createdAt: "desc" }
         });
-    
+
         const totalClients = await prisma.client.count({
             where: {
                 deletedAt: null,
-                OR: [
-                    {
-                        companyName: { contains: query, mode: "insensitive" }
-                    },
-                    {
-                        invoices: {
-                            some: {
-                                clientId: { not: null },
-                                OR: [
-                                    { invoiceNumber: { contains: query, mode: "insensitive" } },
-                                    { description: { contains: query, mode: "insensitive" } },
-                                    ...invoiceFilters
-                                ]
-                            }
-                        }
+                invoices: {
+                    some: {
+                        deletedAt: null,
+                        OR: [
+                            { invoiceNumber: { contains: query, mode: "insensitive" } },
+                            { description: { contains: query, mode: "insensitive" } },
+                            ...invoiceFilters
+                        ]
                     }
-                ]
+                }
             }
         });
-    
+
         return { clients, totalClients };
     }
+
 
 }
 
