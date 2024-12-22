@@ -28,3 +28,36 @@ model Account {
   deletedAt DateTime?
   admin     Admin?    @relation(fields: [adminId], references: [id])
 }
+
+model Client {
+  id            Int        @id @default(autoincrement())
+  firstname     String
+  lastname      String
+  email         String?
+  companyName   String
+  phoneNumber   String?
+  businessPhone String?
+  mobilePhone   String?
+  address       String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+  invoices      Invoices[]
+}
+
+model Invoices {
+  id               Int       @id @default(autoincrement())
+  invoiceNumber    String
+  clientId         Int?
+  description      String?
+  rate             Decimal?  @default(0.00) @db.Decimal(65, 2)
+  quantity         Decimal?  @default(0.00) @db.Decimal(65, 2)
+  lineTotal        Decimal?  @default(0.00) @db.Decimal(65, 2)
+  issuedDate       DateTime  @default(now())
+  dueDate          DateTime?
+  totalOutstanding Decimal?  @default(0.00) @db.Decimal(65, 2)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+  client           Client?   @relation(fields: [clientId], references: [id])
+}
