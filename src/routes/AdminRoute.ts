@@ -7,7 +7,7 @@ const adminController = new AdminController();
 
 adminRoute.get("/test", adminController.test);
 adminRoute.get("/dashboard", authMiddleware, adminController.dashboard);
-adminRoute.post("/", authMiddleware, adminController.create);
+adminRoute.post("/", adminController.create);
 
 
 /**
