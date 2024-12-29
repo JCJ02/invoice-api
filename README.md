@@ -10,7 +10,7 @@ Learn more about the following technologies:
 
 Use `git clone` to clone this repo:
 ```console
-$ git clone https://github.com/prodgrammer21/nodejs-mongodb.git
+$ git clone https://github.com/JCJ02/invoice-api.git
 ```
 or
 
