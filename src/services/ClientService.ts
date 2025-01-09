@@ -60,6 +60,10 @@ class ClientService {
             return null;
         }
 
+        // STEP 1: CHECK IF THERE ARE EXISTING INVOICE/S
+        const existingInvoices = await this.clientRepo.getTotalOutstandingForClient(id);
+        const existingTotalOutstanding = existingInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
+
         const lastInvoiceNumber = await this.clientRepo.validateInvoiceNumber();
         // console.log(`Last Invoice Number: ${lastInvoiceNumber}`);
         let newInvoiceNumber: string;
@@ -72,22 +76,27 @@ class ClientService {
             newInvoiceNumber = `LWS-${currentYear}-0001`;
         }
 
-        // STEP 1: CALCULATE LINE TOTAL FOR EACH INVOICR AND TOTAL OUTSTANDING
+        // STEP 2: CALCULATE LINE TOTAL FOR EACH INVOICR AND TOTAL OUTSTANDING
         const createInvoices = data.map((invoice: any) => {
             // CALCULATE LINE TOTAL = RATE * QUANTITY
-            const lineTotal = (invoice.rate || 0) * (invoice.quantity || 0);
+            const lineTotal = Number(invoice.rate || 0) * Number(invoice.quantity || 0);
             return {
                 ...invoice,
                 lineTotal: lineTotal,
             };
         });
 
-        // STEP 2: CALCULATE TOTAL OUTSTANDING (SUM OF ALL LINE TOTAL VALUES)
-        const totalOutstanding = createInvoices.reduce((sum: number, invoice: any) => {
-            return sum + (invoice.lineTotal || 0);
+        // STEP 3: CALCULATE TOTAL OUTSTANDING BASED ON EXISTING INVOICES AND NEW INVOICES (SUM OF ALL LINE TOTAL VALUES)
+        const newTotalOutstanding = createInvoices.reduce((sum: number, invoice: any) => {
+            return sum + Number(invoice.lineTotal || 0);
         }, 0);
+        
+        const totalOutstanding = existingTotalOutstanding + newTotalOutstanding;
 
-        // STEP 3: SAVE THE INVOICES WITH THE CALCULATED LINE TOTAL AND TOTAL OUTSTANDING
+        // STEP 4: UPDATE ALL THE TOTAL OUTSTANDING
+        await this.clientRepo.updateMany(id, totalOutstanding);
+
+        // STEP 5: SAVE THE INVOICES WITH THE CALCULATED LINE TOTAL AND TOTAL OUTSTANDING
         if (createInvoices && createInvoices.length > 0) {
             return await this.clientRepo.createMany(clientId.id, createInvoices.map((invoice: any) => ({
                 ...invoice,
@@ -96,6 +105,11 @@ class ClientService {
             })));
         }
 
+        return {
+            clientId,
+            totalOutstanding,
+            invoices: createInvoices
+        }
     }
 
     // UPDATE CLIENT METHOD

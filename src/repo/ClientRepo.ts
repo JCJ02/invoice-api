@@ -69,6 +69,20 @@ class ClientRepo {
 
     }
 
+    async getTotalOutstandingForClient(clientId: number) {
+        const invoices = await prisma.invoices.findMany({
+            where: {
+                clientId: clientId,
+                deletedAt: null
+            },
+            select: {
+                lineTotal: true
+            }
+        });
+    
+        return invoices;
+    }
+
     // CREATE INVOICES METHOD
     async createMany(id: number, data: any[]) {
 
@@ -84,6 +98,21 @@ class ClientRepo {
 
         return createManyInvoices;
 
+    }
+
+    // UPDATE MANY INVOICES METHOD
+    async updateMany(id: number, totalOutstanding: number) {
+        const invoices = await prisma.invoices.updateMany({
+            where: {
+                clientId: id,
+                deletedAt: null
+            },
+            data: {
+                totalOutstanding: totalOutstanding
+            }
+        });
+
+        return invoices;
     }
 
     // UPDATE CLIENT METHOD
