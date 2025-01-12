@@ -60,8 +60,8 @@ class ClientService {
             return null;
         }
 
-        // STEP 1: CHECK IF THERE ARE EXISTING INVOICE/S
-        const existingInvoices = await this.clientRepo.getTotalOutstandingForClient(id);
+        // STEP 1: GET ALL LINE TOTAL OF SELECTED CLIENT IF THERE IS
+        const existingInvoices = await this.clientRepo.getAllLineTotal(id);
         const existingTotalOutstanding = existingInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
 
         const lastInvoiceNumber = await this.clientRepo.validateInvoiceNumber();
@@ -184,39 +184,67 @@ class ClientService {
 
         if (!invoice) {
             return null;
-        } else {
+        }
 
+        const clientId = invoice.clientId;
 
-            const lineTotal = (data.rate || 0) * (data.quantity || 0);
+        if(!clientId) {
+            return null;
+        }
 
-            const invoiceData = {
-                ...data,
-                lineTotal: lineTotal,
-                totalOutstanding: lineTotal
-            }
+        const existingInvoices = await this.clientRepo.getAllLineTotal(clientId);
+        const existingTotalOutstanding = existingInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
 
-            const editInvoice = await this.clientRepo.updateInvoice(invoice.id, invoiceData);
+        const lineTotal = (data.rate || 0) * (data.quantity || 0);
+        const newTotalOutstanding = existingTotalOutstanding;
 
-            return editInvoice;
+        const invoiceData = {
+            ...data,
+            lineTotal: lineTotal,
+            totalOutstanding: newTotalOutstanding
+        }
 
+        const editedInvoice = await this.clientRepo.updateInvoice(invoice.id, invoiceData);
+        const updatedInvoices = await this.clientRepo.updateMany(clientId, newTotalOutstanding);
+
+        return {
+            editedInvoice,
+            updatedInvoices
         }
 
     }
 
     // DELETE INVOICE METHOD
-    async deleteInvoice(id: number) {
+    async deleteInvoice(id: number, data: invoiceType) {
 
         const invoice = await this.clientRepo.retrieve(id);
 
         if (!invoice) {
             return null;
-        } else {
-
-            const removeInvoice = await this.clientRepo.deleteInvoice(invoice.id);
-
-            return removeInvoice;
-
         }
+
+        const clientId = invoice.clientId;
+
+        if (!clientId) {
+            return null;
+        }
+
+        const deletedInvoice = await this.clientRepo.deleteInvoice(invoice.id, data);
+
+        // RECALCULATE THE TOTAL OUTSTANDING AFTER DELETION
+        const remainingInvoices = await this.clientRepo.getAllLineTotal(clientId);
+        const updatedTotalOutstanding = remainingInvoices.reduce(
+            (sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0),
+            0
+        );
+
+        // UPDATE TOTAL OUTSTANDING FOR ALL REMAINING INVOICES
+        const updatedInvoices = await this.clientRepo.updateMany(clientId, updatedTotalOutstanding);
+
+        return {
+            deletedInvoice,
+            updatedInvoices,
+        };
 
     }
 
