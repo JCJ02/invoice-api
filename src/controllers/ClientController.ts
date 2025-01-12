@@ -326,8 +326,9 @@ class ClientController {
         try {
 
             const invoiceId = Number(req.params.id);
+            const invoiceData = req.body;
 
-            const isInvoiceDeleted = await this.clientService.deleteInvoice(invoiceId);
+            const isInvoiceDeleted = await this.clientService.deleteInvoice(invoiceId, invoiceData);
 
             if (!isInvoiceDeleted) {
                 return AppResponse.sendErrors({
