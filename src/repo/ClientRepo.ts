@@ -1,5 +1,5 @@
 import { clientType, invoiceType } from "../types/ClientTypes";
-import prisma from "../utils/client";
+import prisma from "../utils/prismaClient";
 
 class ClientRepo {
 

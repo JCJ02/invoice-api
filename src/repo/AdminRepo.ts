@@ -1,5 +1,5 @@
 import { adminAccountType } from "../types/AdminType";
-import prisma from "../utils/client";
+import prisma from "../utils/prismaClient";
 
 class AdminRepo {
 

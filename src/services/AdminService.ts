@@ -2,7 +2,7 @@ import AdminRepo from "../repo/AdminRepo";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/token";
 import { adminType } from "../types/AdminType";
-import prisma from "../utils/client";
+import prisma from "../utils/prismaClient";
 import { sendAccountDetails } from "../utils/SendAdminDetails";
 import { generatePassword } from "../utils/generatePassword";
 
