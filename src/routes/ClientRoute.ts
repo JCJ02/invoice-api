@@ -1,5 +1,5 @@
 import express from "express";
-import authMiddleware from "../middleware/AuthMiddleware";
+import authMiddleware from "../middlewares/AuthMiddleware";
 import ClientController from "../controllers/ClientController";
 
 const clientRoute = express.Router();
@@ -569,7 +569,7 @@ clientRoute.get("/:id", authMiddleware, clientController.get);
  * /api/client/create-invoices/{id}:
  *   post:
  *     summary: Create Multiple Invoices for a Specific Client By ID
- *     tags: [Client Management - Invoices]
+ *     tags: [Client and Invoice Management]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -672,7 +672,7 @@ clientRoute.post("/create-invoices/:id", authMiddleware, clientController.create
  * /api/client/update-invoice/{id}:
  *   put:
  *     summary: Update an existing invoice by Invoice ID
- *     tags: [Client Management - Invoices]
+ *     tags: [Client and Invoice Management]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -807,7 +807,7 @@ clientRoute.put("/update-invoice/:id", authMiddleware, clientController.updateIn
  * /api/client/delete-invoice/{id}:
  *   delete:
  *     summary: Delete An Invoice By Invoice ID
- *     tags: [Client Management - Invoices]
+ *     tags: [Client and Invoice Management]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -880,7 +880,7 @@ clientRoute.delete("/delete-invoice/:id", authMiddleware, clientController.delet
  * /api/client/retrieve/invoice-list/:
  *   get:
  *     summary: Retrieve a List of Invoices w/Search and Pagination
- *     tags: [Client Management - Invoices]
+ *     tags: [Client and Invoice Management]
  *     parameters:
  *       - in: query
  *         name: query
@@ -988,7 +988,7 @@ clientRoute.get("/retrieve/invoice-list", authMiddleware, clientController.invoi
  * /api/client/retrieve/{id}:
  *   get:
  *     summary: Retrieve a Specific Invoice Based on Invoice ID
- *     tags: [Client Management - Invoices]
+ *     tags: [Client and Invoice Management]
  *     parameters:
  *       - in: path
  *         name: id
