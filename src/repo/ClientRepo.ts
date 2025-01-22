@@ -338,8 +338,8 @@ class ClientRepo {
 
     }
 
-    // INVOICE LIST w/ SEARCH AND PAGINATION
-    async invoiceList(query: string, skip: number, limit: number) {
+    // CLIENT & INVOICE LIST w/ SEARCH AND PAGINATION
+    async clientWithInvoiceList(query: string, skip: number, limit: number) {
         const parsedDate = !isNaN(Date.parse(query)) ? new Date(query) : undefined;
         const parsedNumber = !isNaN(Number(query)) ? Number(query) : undefined;
 
@@ -348,9 +348,17 @@ class ClientRepo {
         if (parsedDate) {
             invoiceFilters.push({ issuedDate: { equals: parsedDate } });
             invoiceFilters.push({ dueDate: { equals: parsedDate } });
+            invoiceFilters.push({ createdAt: { equals: parsedDate } });
+            invoiceFilters.push({ updatedAt: { equals: parsedDate } });
+            invoiceFilters.push({ deletedAt: { equals: parsedDate } });
         }
 
         if (parsedNumber !== undefined) {
+            invoiceFilters.push({ id: { equals: parsedNumber }});
+            invoiceFilters.push({ clientId: { equals: parsedNumber }});
+            invoiceFilters.push({ rate: { equals: parsedNumber }});
+            invoiceFilters.push({ quantity: { equals: parsedNumber }});
+            invoiceFilters.push({ lineTotal: { equals: parsedNumber }});
             invoiceFilters.push({ totalOutstanding: { equals: parsedNumber } });
         }
 
@@ -397,10 +405,15 @@ class ClientRepo {
                             { description: { contains: query, mode: "insensitive" } },
                             ...invoiceFilters
                         ]
+                    },
+                    orderBy: {
+                        createdAt: "desc"
                     }
                 }
             },
-            orderBy: { createdAt: "desc" }
+            orderBy: {
+                createdAt: "desc"
+            }
         });
 
         const totalClients = await prisma.client.count({
@@ -422,6 +435,55 @@ class ClientRepo {
         return { clients, totalClients };
     }
 
+    // INVOICES LIST w/ SEARCH AND PAGINATION
+    async invoiceList(query: string, skip: number, limit: number) {
+        const parsedDate = !isNaN(Date.parse(query)) ? new Date(query) : undefined;
+        const parsedNumber = !isNaN(Number(query)) ? Number(query) : undefined;
+
+        const invoiceFilters = [];
+
+        if (parsedDate) {
+            invoiceFilters.push({ issuedDate: { equals: parsedDate } });
+            invoiceFilters.push({ dueDate: { equals: parsedDate } });
+        }
+
+        if (parsedNumber !== undefined) {
+            invoiceFilters.push({ totalOutstanding: { equals: parsedNumber } });
+        }
+
+        const invoices = await prisma.invoices.findMany({
+            skip: skip,
+            take: limit,
+            where: {
+                deletedAt: null,
+                OR: [
+                    { invoiceNumber: { contains: query, mode: "insensitive" } },
+                    { description: { contains: query, mode: "insensitive" } },
+                    ...invoiceFilters
+                ]
+            },
+            orderBy: {
+                createdAt: "desc"
+            }
+        });
+
+        const totalInvoices = await prisma.invoices.count({
+            where: {
+                deletedAt: null,
+                OR: [
+                    { invoiceNumber: { contains: query, mode: "insensitive" } },
+                    { description: { contains: query, mode: "insensitive" } },
+                    ...invoiceFilters
+                ]
+            }
+        });
+
+        return {
+            invoices,
+            totalInvoices,
+        };
+
+    }
 
 }
 

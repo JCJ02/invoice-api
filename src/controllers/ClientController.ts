@@ -19,9 +19,10 @@ class ClientController {
         this.list = this.list.bind(this);
         this.updateInvoice = this.updateInvoice.bind(this);
         this.deleteInvoice = this.deleteInvoice.bind(this);
-        this.invoiceList = this.invoiceList.bind(this);
+        this.clientWithInvoiceList = this.clientWithInvoiceList.bind(this);
         this.get = this.get.bind(this);
         this.getInvoice = this.getInvoice.bind(this);
+        this.invoiceList = this.invoiceList.bind(this);
 
     }
 
@@ -393,7 +394,32 @@ class ClientController {
 
     }
 
-    // INVOICE LIST w/ SEARCH AND PAGINATION
+    // CLIENT WITH INVOICE LIST w/ SEARCH AND PAGINATION
+    async clientWithInvoiceList(req: Request, res: Response) {
+
+        try {
+
+            const searchResults = await this.clientService.clientWithInvoiceList(req);
+
+            return AppResponse.sendSuccessful({
+                res,
+                data: searchResults,
+                message: "Result!",
+                code: 200
+            });
+
+        } catch (error: any) {
+            return AppResponse.sendErrors({
+                res,
+                data: null,
+                message: error.message,
+                code: 500
+            });
+        }
+
+    }
+
+    // INVOICES LIST w/ SEARCH AND PAGINATION
     async invoiceList(req: Request, res: Response) {
 
         try {

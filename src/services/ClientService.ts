@@ -261,7 +261,22 @@ class ClientService {
 
     }
 
-    // INVOICE LIST w/ SEARCH AND PAGINATION
+    // CLIENT WITH INVOICE LIST w/ SEARCH AND PAGINATION clientAndInvoiceList
+    async clientWithInvoiceList(req: Request) {
+
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const query = req.query.query as string || "";
+
+        const skip = (page - 1) * limit;
+
+        const searchResults = await this.clientRepo.clientWithInvoiceList(query, skip, limit);
+
+        return searchResults;
+
+    }
+
+    // INVOICES LIST w/ SEARCH AND PAGINATION
     async invoiceList(req: Request) {
 
         const page = parseInt(req.query.page as string) || 1;
