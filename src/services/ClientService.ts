@@ -51,6 +51,71 @@ class ClientService {
 
     }
 
+    // CLIENT and INVOICE LIST w/ SEARCH AND PAGINATION
+    async list(req: Request) {
+
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const query = req.query.query as string || "";
+
+        const skip = (page - 1) * limit;
+
+        const searchResults = await this.clientRepo.list(query, skip, limit);
+
+        return searchResults;
+
+    }
+
+    // UPDATE CLIENT METHOD
+    async update(id: number, data: clientType) {
+
+        const client = await this.clientRepo.show(id);
+
+        if (!client) {
+            return null;
+        } else {
+
+            const clientData = {
+                ...data
+            }
+
+            const updateClient = await this.clientRepo.update(client.id, clientData);
+
+            return updateClient;
+
+        }
+
+    }
+
+    // DELETE CLIENT METHOD
+    async delete(id: number) {
+
+        const client = await this.clientRepo.show(id);
+
+        if (!client) {
+            return null;
+        } else {
+
+            const deleteClient = await this.clientRepo.delete(client.id);
+
+            return deleteClient;
+        }
+
+    }
+
+    // GET CLIENT METHOD
+    async get(id: number) {
+
+        const client = await this.clientRepo.get(id);
+
+        if (!client) {
+            return null;
+        } else {
+            return client;
+        }
+
+    }
+
     // CREATE INVOICES METHOD
     async createMany(id: number, data: any[]) {
 
@@ -112,70 +177,6 @@ class ClientService {
         }
     }
 
-    // UPDATE CLIENT METHOD
-    async update(id: number, data: clientType) {
-
-        const client = await this.clientRepo.show(id);
-
-        if (!client) {
-            return null;
-        } else {
-
-            const clientData = {
-                ...data
-            }
-
-            const updateClient = await this.clientRepo.update(client.id, clientData);
-
-            return updateClient;
-
-        }
-
-    }
-
-    // DELETE CLIENT METHOD
-    async delete(id: number) {
-
-        const client = await this.clientRepo.show(id);
-
-        if (!client) {
-            return null;
-        } else {
-
-            const deleteClient = await this.clientRepo.delete(client.id);
-
-            return deleteClient;
-        }
-
-    }
-
-    // GET CLIENT METHOD
-    async get(id: number) {
-
-        const client = await this.clientRepo.show(id);
-
-        if (!client) {
-            return null;
-        } else {
-            return client;
-        }
-
-    }
-
-    // CLIENT LIST w/ SEARCH AND PAGINATION
-    async list(req: Request) {
-
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 10;
-        const query = req.query.query as string || "";
-
-        const skip = (page - 1) * limit;
-
-        const searchResults = await this.clientRepo.list(query, skip, limit);
-
-        return searchResults;
-
-    }
 
     // UPDATE INVOICE METHOD
     async updateInvoice(id: number, data: invoiceType) {
@@ -261,20 +262,6 @@ class ClientService {
 
     }
 
-    // CLIENT WITH INVOICE LIST w/ SEARCH AND PAGINATION clientAndInvoiceList
-    async clientWithInvoiceList(req: Request) {
-
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 10;
-        const query = req.query.query as string || "";
-
-        const skip = (page - 1) * limit;
-
-        const searchResults = await this.clientRepo.clientWithInvoiceList(query, skip, limit);
-
-        return searchResults;
-
-    }
 
     // INVOICES LIST w/ SEARCH AND PAGINATION
     async invoiceList(req: Request) {

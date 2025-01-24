@@ -133,6 +133,165 @@ clientRoute.post("/", authMiddleware, clientController.create);
 
 /**
  * @swagger
+ * /api/client/:
+ *   get:
+ *     summary: Retrieve a List of Clients and their Associated Invoices with Search and Pagination Functionality
+ *     tags: [Client Management]
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         description: Search query for filtering invoices or clients by company name, invoice number, or description
+ *         required: false
+ *         schema:
+ *           type: string
+ *           example: "LWS-24-0004"
+ *       - in: query
+ *         name: page
+ *         description: The page number for pagination
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *       - in: query
+ *         name: limit
+ *         description: The number of records per page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           example: 5
+ *     responses:
+ *       200:
+ *         description: Successfully Retrieved the List of Invoices
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     clients:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                             example: 8
+ *                           firstname:
+ *                             type: string
+ *                             example: "Juan"
+ *                           lastname:
+ *                             type: string
+ *                             example: "Dela Cruz"
+ *                           email:
+ *                             type: string
+ *                             example: "juandelacruz@example.com"
+ *                           companyName:
+ *                             type: string
+ *                             example: "Lightweight Solutions"
+ *                           phoneNumber:
+ *                             type: string
+ *                             example: "093403950493"
+ *                           businessPhone:
+ *                             type: string
+ *                             example: "(206) 709-3400"
+ *                           mobilePhone:
+ *                             type: string
+ *                             example: "093403950493"
+ *                           address: 
+ *                             type: string
+ *                             example: "Quezon City, Philippines"
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2025-01-22T02:05:58.958Z"
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2025-01-22T02:05:58.958Z"
+ *                           deletedAt:
+ *                             type: string
+ *                             nullable: true
+ *                             example: null
+ *                           invoices:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 id: 
+ *                                   type: integer
+ *                                   example: 21
+ *                                 invoiceNumber:
+ *                                   type: string
+ *                                   example: "LWS-24-0004"
+ *                                 clientId: 
+ *                                   type: integer
+ *                                   example: 8
+ *                                 description:
+ *                                   type: string
+ *                                   example: "Website Development"
+ *                                 rate:
+ *                                   type: string
+ *                                   example: "240"
+ *                                 quantity:
+ *                                   type: string
+ *                                   example: "15"
+ *                                 lineTotal:
+ *                                   type: string
+ *                                   example: "3600"
+ *                                 issuedDate:
+ *                                   type: string
+ *                                   format: date-time
+ *                                   example: "2024-11-25T08:49:49.131Z"
+ *                                 dueDate:
+ *                                   type: string
+ *                                   format: date-time
+ *                                   example: "2024-12-31T00:00:00.000Z"
+ *                                 totalOutstanding:
+ *                                   type: string
+ *                                   example: "6021000"
+ *                                 createdAt:
+ *                                   type: string
+ *                                   format: date-time
+ *                                   example: "2025-01-22T02:05:58.958Z"
+ *                                 updatedAt:
+ *                                   type: string
+ *                                   format: date-time
+ *                                   example: "2025-01-22T02:05:58.958Z"
+ *                                 deletedAt:
+ *                                   type: string
+ *                                   nullable: true
+ *                                   example: null
+ *                     totalClients:
+ *                       type: integer
+ *                       example: 3
+ *                 message:
+ *                   type: string
+ *                   example: "Result!"
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "An Unexpected Error Occurred."
+ *                 code:
+ *                   type: integer
+ *                   example: 500
+ */
+
+clientRoute.get("/", authMiddleware, clientController.list);
+
+
+/**
+ * @swagger
  * /api/client/{id}:
  *   put:
  *     summary: Update An Existing Client
@@ -334,120 +493,6 @@ clientRoute.delete("/:id", authMiddleware, clientController.delete);
 
 /**
  * @swagger
- * /api/client:
- *   get:
- *     summary: Retrieve a List of Clients w/Search and Pagination
- *     tags: [Client Management]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: query
- *         description: Search keyword to filter clients by fields such as firstname, lastname, companyName, email, phoneNumber, etc.
- *         schema:
- *           type: string
- *           example: "Lightweight"
- *       - in: query
- *         name: page
- *         description: The page number for pagination
- *         schema:
- *           type: integer
- *           example: 1
- *       - in: query
- *         name: limit
- *         description: Number of clients to retrieve per page
- *         schema:
- *           type: integer
- *           example: 5
- *     responses:
- *       200:
- *         description: A list of clients
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   type: object
- *                   properties:
- *                     clients:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: integer
- *                             example: 8
- *                           firstname:
- *                             type: string
- *                             example: "Juan"
- *                           lastname:
- *                             type: string
- *                             example: "Dela Cruz"
- *                           email:
- *                             type: string
- *                             example: "juandelacruz@example.com"
- *                           companyName:
- *                             type: string
- *                             example: "Lightweight Solutions"
- *                           phoneNumber:
- *                             type: string
- *                             example: "09485738475"
- *                           businessPhone:
- *                             type: string
- *                             nullable: true
- *                             example: "09586495435"
- *                           mobilePhone:
- *                             type: string
- *                             nullable: true
- *                             example: ""
- *                           address:
- *                             type: string
- *                             example: "Quezon City"
- *                           createdAt:
- *                             type: string
- *                             format: date-time
- *                             example: "2024-11-25T06:33:34.089Z"
- *                           updatedAt:
- *                             type: string
- *                             format: date-time
- *                             example: "2024-11-25T07:29:38.820Z"
- *                           deletedAt:
- *                             type: string
- *                             nullable: true
- *                             example: null
- *                     totalClients:
- *                       type: integer
- *                       example: 3
- *                 message:
- *                   type: string
- *                   example: "Result!"
- *                 code:
- *                   type: integer
- *                   example: 200
- *       500:
- *         description: Internal Server Error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   type: object
- *                   nullable: true
- *                   example: null
- *                 message:
- *                   type: string
- *                   example: "An Unexpected Error Occurred."
- *                 code:
- *                   type: integer
- *                   example: 500
- */
-
-clientRoute.get("/", authMiddleware, clientController.list);
-
-/**
- * @swagger
  * /api/client/{id}:
  *   get:
  *     summary: Retrieve a Specific Client's Details By ID
@@ -478,45 +523,94 @@ clientRoute.get("/", authMiddleware, clientController.list);
  *                       properties:
  *                         id:
  *                           type: integer
- *                           example: 8
+ *                           example: 31
  *                         firstname:
  *                           type: string
- *                           example: "Juan"
+ *                           example: "Vrix Zean"
  *                         lastname:
  *                           type: string
- *                           example: "Dela Cruz"
+ *                           example: "Baltero"
  *                         email:
  *                           type: string
- *                           example: "juandelacruz@example.com"
+ *                           example: "baltero.vrixzean.06172003@gmail.com"
  *                         companyName:
  *                           type: string
- *                           example: "Lightweight Solutions"
+ *                           example: "Teleperformance"
  *                         phoneNumber:
  *                           type: string
- *                           example: "09485738475"
+ *                           example: ""
  *                         businessPhone:
  *                           type: string
  *                           nullable: true
- *                           example: "09586495435"
+ *                           example: ""
  *                         mobilePhone:
  *                           type: string
  *                           nullable: true
  *                           example: ""
  *                         address:
  *                           type: string
- *                           example: "Quezon City"
+ *                           example: ""
  *                         createdAt:
  *                           type: string
  *                           format: date-time
- *                           example: "2024-11-25T06:33:34.089Z"
+ *                           example: "2025-01-16T09:51:04.549Z"
  *                         updatedAt:
  *                           type: string
  *                           format: date-time
- *                           example: "2024-11-25T07:29:38.820Z"
+ *                           example: "2025-01-17T05:54:11.969Z"
  *                         deletedAt:
  *                           type: string
  *                           nullable: true
  *                           example: null
+ *                         invoices:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               id:
+ *                                 type: integer
+ *                                 example: 48
+ *                               invoiceNumber:
+ *                                 type: string
+ *                                 example: "LWS-25-0008"
+ *                               clientId:
+ *                                 type: integer
+ *                                 example: 31
+ *                               description:
+ *                                 type: string
+ *                                 example: "Testing"
+ *                               rate:
+ *                                 type: string
+ *                                 example: "100"
+ *                               quantity:
+ *                                 type: string
+ *                                 example: "2"
+ *                               lineTotal:
+ *                                 type: string
+ *                                 example: "200"
+ *                               issuedDate:
+ *                                 type: string
+ *                                 format: date-time
+ *                                 example: "2025-01-17T02:03:08.270Z"
+ *                               dueDate:
+ *                                 type: string
+ *                                 format: date-time
+ *                                 example: "2025-01-31T00:00:00.000Z"
+ *                               totalOutstanding:
+ *                                 type: string
+ *                                 example: "3275.45"
+ *                               createdAt:
+ *                                 type: string
+ *                                 format: date-time
+ *                                 example: "2025-01-17T02:03:08.270Z"
+ *                               updatedAt:
+ *                                 type: string
+ *                                 format: date-time
+ *                                 example: "2025-01-23T09:24:43.403Z"
+ *                               deletedAt:
+ *                                 type: string
+ *                                 nullable: true
+ *                                 example: null
  *                 message:
  *                   type: string
  *                   example: "Successfully Retrived!"
@@ -563,7 +657,6 @@ clientRoute.get("/:id", authMiddleware, clientController.get);
 
 
 // INVOICES ROUTES
-
 /**
  * @swagger
  * /api/client/create-invoices/{id}:
@@ -877,35 +970,21 @@ clientRoute.delete("/delete-invoice/:id", authMiddleware, clientController.delet
 
 /**
  * @swagger
- * /api/client/retrieve/client-with-invoice-list:
+ * /api/client/retrieve/invoice-list/{id}:
  *   get:
- *     summary: Retrieve a List of Clients and their Associated Invoices with Search and Pagination Functionality
+ *     summary: Retrieve a Specific Invoice Based on Invoice ID
  *     tags: [Client and Invoice Management]
  *     parameters:
- *       - in: query
- *         name: query
- *         description: Search query for filtering invoices or clients by company name, invoice number, or description
- *         required: false
- *         schema:
- *           type: string
- *           example: "LWS-24-0004"
- *       - in: query
- *         name: page
- *         description: The page number for pagination
- *         required: false
+ *       - in: path
+ *         name: id
+ *         description: The ID of the invoice to retrieve
+ *         required: true
  *         schema:
  *           type: integer
- *           example: 1
- *       - in: query
- *         name: limit
- *         description: The number of records per page
- *         required: false
- *         schema:
- *           type: integer
- *           example: 5
+ *           example: 36
  *     responses:
  *       200:
- *         description: Successfully Retrieved the List of Invoices
+ *         description: Successfully Retrieved the Invoice
  *         content:
  *           application/json:
  *             schema:
@@ -914,105 +993,56 @@ clientRoute.delete("/delete-invoice/:id", authMiddleware, clientController.delet
  *                 data:
  *                   type: object
  *                   properties:
- *                     clients:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: integer
- *                             example: 8
- *                           firstname:
- *                             type: string
- *                             example: "Juan"
- *                           lastname:
- *                             type: string
- *                             example: "Dela Cruz"
- *                           email:
- *                             type: string
- *                             example: "juandelacruz@example.com"
- *                           companyName:
- *                             type: string
- *                             example: "Lightweight Solutions"
- *                           phoneNumber:
- *                             type: string
- *                             example: "093403950493"
- *                           businessPhone:
- *                             type: string
- *                             example: "(206) 709-3400"
- *                           mobilePhone:
- *                             type: string
- *                             example: "093403950493"
- *                           address: 
- *                             type: string
- *                             example: "Quezon City, Philippines"
- *                           createdAt:
- *                             type: string
- *                             format: date-time
- *                             example: "2025-01-22T02:05:58.958Z"
- *                           updatedAt:
- *                             type: string
- *                             format: date-time
- *                             example: "2025-01-22T02:05:58.958Z"
- *                           deletedAt:
- *                             type: string
- *                             nullable: true
- *                             example: null
- *                           invoices:
- *                             type: array
- *                             items:
- *                               type: object
- *                               properties:
- *                                 id: 
- *                                   type: integer
- *                                   example: 21
- *                                 invoiceNumber:
- *                                   type: string
- *                                   example: "LWS-24-0004"
- *                                 clientId: 
- *                                   type: integer
- *                                   example: 8
- *                                 description:
- *                                   type: string
- *                                   example: "Website Development"
- *                                 rate:
- *                                   type: string
- *                                   example: "240"
- *                                 quantity:
- *                                   type: string
- *                                   example: "15"
- *                                 lineTotal:
- *                                   type: string
- *                                   example: "3600"
- *                                 issuedDate:
- *                                   type: string
- *                                   format: date-time
- *                                   example: "2024-11-25T08:49:49.131Z"
- *                                 dueDate:
- *                                   type: string
- *                                   format: date-time
- *                                   example: "2024-12-31T00:00:00.000Z"
- *                                 totalOutstanding:
- *                                   type: string
- *                                   example: "6021000"
- *                                 createdAt:
- *                                   type: string
- *                                   format: date-time
- *                                   example: "2025-01-22T02:05:58.958Z"
- *                                 updatedAt:
- *                                   type: string
- *                                   format: date-time
- *                                   example: "2025-01-22T02:05:58.958Z"
- *                                 deletedAt:
- *                                   type: string
- *                                   nullable: true
- *                                   example: null
- *                     totalClients:
- *                       type: integer
- *                       example: 3
+ *                     invoice:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                           example: 66
+ *                         invoiceNumber:
+ *                           type: string
+ *                           example: "LWS-25-0017"
+ *                         clientId:
+ *                           type: integer
+ *                           example: 31
+ *                         description:
+ *                           type: string
+ *                           example: "TeST 123"
+ *                         rate:
+ *                           type: string
+ *                           example: "1500.45"
+ *                         quantity:
+ *                           type: string
+ *                           example: "1"
+ *                         lineTotal:
+ *                           type: string
+ *                           example: "1500.45"
+ *                         issuedDate:
+ *                           type: string
+ *                           format: date-time
+ *                           example: "2025-01-23T09:24:43.516Z"
+ *                         dueDate:
+ *                           type: string
+ *                           format: date-time
+ *                           example: "2025-01-31T00:00:00.000Z"
+ *                         totalOutstanding:
+ *                           type: string
+ *                           example: "3275.45"
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                           example: "2025-01-23T09:24:43.516Z"
+ *                         updatedAt:
+ *                           type: string
+ *                           format: date-time
+ *                           example: "2025-01-23T09:24:43.516Z"
+ *                         deletedAt:
+ *                           type: string
+ *                           nullable: true
+ *                           example: null
  *                 message:
  *                   type: string
- *                   example: "Result!"
+ *                   example: "Successfully Retrieved!"
  *                 code:
  *                   type: integer
  *                   example: 200
@@ -1031,7 +1061,7 @@ clientRoute.delete("/delete-invoice/:id", authMiddleware, clientController.delet
  *                   example: 500
  */
 
-clientRoute.get("/retrieve/client-with-invoice-list", authMiddleware, clientController.clientWithInvoiceList);
+clientRoute.get("/retrieve/invoice-list/:id", authMiddleware, clientController.getInvoice);
 
 
 /**
@@ -1147,98 +1177,5 @@ clientRoute.get("/retrieve/client-with-invoice-list", authMiddleware, clientCont
  */
 
 clientRoute.get("/retrieve/invoice-list", authMiddleware, clientController.invoiceList);
-
-
-/**
- * @swagger
- * /api/client/retrieve/{id}:
- *   get:
- *     summary: Retrieve a Specific Invoice Based on Invoice ID
- *     tags: [Client and Invoice Management]
- *     parameters:
- *       - in: path
- *         name: id
- *         description: The ID of the invoice to retrieve
- *         required: true
- *         schema:
- *           type: integer
- *           example: 36
- *     responses:
- *       200:
- *         description: Successfully Retrieved the Invoice
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 36
- *                     invoiceNumber:
- *                       type: string
- *                       example: "LWS-24-0004"
- *                     clientId:
- *                       type: integer
- *                       example: 8
- *                     description:
- *                       type: string
- *                       example: "Application Development"
- *                     rate:
- *                       type: string
- *                       example: "5000000"
- *                     quantity:
- *                       type: string
- *                       example: "1"
- *                     lineTotal:
- *                       type: string
- *                       example: "5000000"
- *                     issuedDate:
- *                       type: string
- *                       format: date-time
- *                       example: "2024-11-25T08:49:49.131Z"
- *                     dueDate:
- *                       type: string
- *                       format: date-time
- *                       example: "2024-12-31T00:00:00.000Z"
- *                     totalOutstanding:
- *                       type: string
- *                       example: "6021000"
- *                     createdAt:
- *                       type: string
- *                       format: date-time
- *                       example: "2024-11-25T08:49:49.131Z"
- *                     updatedAt:
- *                       type: string
- *                       format: date-time
- *                       example: "2024-11-25T08:49:49.131Z"
- *                     deletedAt:
- *                       type: string
- *                       nullable: true
- *                       example: null
- *                 message:
- *                   type: string
- *                   example: "Successfully Retrieved!"
- *                 code:
- *                   type: integer
- *                   example: 200
- *       500:
- *         description: Internal Server Error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: "An Unexpected Error Occurred."
- *                 code:
- *                   type: integer
- *                   example: 500
- */
-
-clientRoute.get("/retrieve/:id", authMiddleware, clientController.getInvoice);
 
 export default clientRoute;

@@ -39,6 +39,35 @@ class ClientRepo {
 
     }
 
+    // GET CLIENT BY ID METHOD
+    async get(id: number) {
+
+        const client = await prisma.client.findFirst({
+            where: {
+                id: id,
+                deletedAt: null
+            },
+            select: {
+                id: true,
+                firstname: true,
+                lastname: true,
+                email: true,
+                companyName: true,
+                phoneNumber: true,
+                businessPhone: true,
+                mobilePhone: true,
+                address: true,
+                createdAt:  true,
+                updatedAt: true,
+                deletedAt: true,
+                invoices: true
+            }
+        });
+
+        return client;
+
+    }
+
     // RETRIEVE INVOICE ID METHOD 
     async retrieve(id: number) {
 
@@ -49,7 +78,18 @@ class ClientRepo {
             },
             select: {
                 id: true,
-                clientId: true
+                invoiceNumber: true,
+                clientId: true,
+                description: true,
+                rate: true,
+                quantity: true,
+                lineTotal: true,
+                issuedDate: true,
+                dueDate: true,
+                totalOutstanding: true,
+                createdAt: true,
+                updatedAt: true,
+                deletedAt: true,
             }
         });
 
@@ -87,259 +127,8 @@ class ClientRepo {
         return invoices;
     }
 
-    // CREATE INVOICES METHOD
-    async createMany(id: number, data: any[]) {
-
-        const invoiceData = data.map((invoice) => ({
-            ...invoice,
-            clientId: id
-        }));
-
-        const createManyInvoices = await prisma.invoices.createMany({
-            data: invoiceData,
-            skipDuplicates: true,
-        });
-
-        return createManyInvoices;
-
-    }
-
-    // UPDATE MANY INVOICES METHOD
-    async updateMany(clientId: number, totalOutstanding: number) {
-        const invoices = await prisma.invoices.updateMany({
-            where: {
-                clientId: clientId,
-                deletedAt: null
-            },
-            data: {
-                totalOutstanding: totalOutstanding
-            }
-        });
-
-        return invoices;
-    }
-
-    // UPDATE CLIENT METHOD
-    async update(id: number, data: clientType) {
-
-        const updateClient = await prisma.client.update({
-            where: {
-                id: id,
-                deletedAt: null
-            },
-            data: {
-                firstname: data.firstname,
-                lastname: data.lastname,
-                companyName: data.companyName,
-                email: data.email,
-                phoneNumber: data.phoneNumber,
-                businessPhone: data.businessPhone,
-                mobilePhone: data.mobilePhone,
-                address: data.address
-            }
-        });
-
-        return updateClient;
-
-    }
-
-    // DELETE CLIENT METHOD
-    async delete(id: number) {
-
-        const deleteClient = await prisma.client.update({
-            where: {
-                id: id,
-                deletedAt: null
-            },
-            data: {
-                deletedAt: new Date(),
-                invoices: {
-                    updateMany: {
-                        where: {
-                            clientId: id,
-                            deletedAt: null
-                        },
-                        data: {
-                            deletedAt: new Date()
-                        }
-                    }
-                }
-            }
-        });
-
-        return deleteClient;
-
-    }
-
-    // CLIENT LIST w/ SEARCH AND PAGINATION
+    // CLIENT and INVOICE LIST w/ SEARCH AND PAGINATION
     async list(query: string, skip: number, limit: number) {
-
-        const clients = await prisma.client.findMany({
-            skip: skip,
-            take: limit,
-            where: {
-                deletedAt: null,
-                OR: [
-                    {
-                        firstname: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
-                    },
-                    {
-                        lastname: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
-                    },
-                    {
-                        companyName: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
-                    },
-                    {
-                        email: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
-                    },
-                    {
-                        phoneNumber: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
-                    },
-                    {
-                        businessPhone: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
-                    },
-                    {
-                        mobilePhone: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
-                    },
-                    {
-                        address: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
-                    }
-                ]
-            },
-            orderBy: {
-                createdAt: "desc"
-            }
-        });
-
-        const totalClients = await prisma.client.count({
-            where: {
-                deletedAt: null,
-                OR: [
-                    {
-                        firstname: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
-                    },
-                    {
-                        lastname: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
-                    },
-                    {
-                        companyName: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
-                    },
-                    {
-                        email: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
-                    },
-                    {
-                        phoneNumber: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
-                    },
-                    {
-                        businessPhone: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
-                    },
-                    {
-                        mobilePhone: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
-                    },
-                    {
-                        address: {
-                            contains: query,
-                            mode: "insensitive"
-                        }
-                    }
-                ]
-            }
-        });
-
-        return {
-            clients,
-            totalClients,
-        };
-
-    }
-
-    // UPDATE INVOICE METHOD
-    async updateInvoice(id: number, data: invoiceType) {
-
-        const editInvoice = await prisma.invoices.update({
-            where: {
-                id: id,
-                deletedAt: null
-            },
-            data: {
-                description: data.description,
-                rate: data.rate,
-                quantity: data.quantity,
-                lineTotal: data.lineTotal,
-                dueDate: data.dueDate,
-                totalOutstanding: data.totalOutstanding
-            }
-        });
-
-        return editInvoice;
-
-    }
-
-    // DELETE INVOICE METHOD
-    async deleteInvoice(id: number, data: invoiceType) {
-
-        const removeInvoice = await prisma.invoices.update({
-            where: {
-                id: id,
-                deletedAt: null
-            },
-            data: {
-                deletedAt: new Date(),
-                totalOutstanding: data.totalOutstanding
-            }
-        });
-
-        return removeInvoice;
-
-    }
-
-    // CLIENT & INVOICE LIST w/ SEARCH AND PAGINATION
-    async clientWithInvoiceList(query: string, skip: number, limit: number) {
         const parsedDate = !isNaN(Date.parse(query)) ? new Date(query) : undefined;
         const parsedNumber = !isNaN(Number(query)) ? Number(query) : undefined;
 
@@ -433,6 +222,130 @@ class ClientRepo {
         });
 
         return { clients, totalClients };
+    }
+
+    // UPDATE CLIENT METHOD
+    async update(id: number, data: clientType) {
+
+        const updateClient = await prisma.client.update({
+            where: {
+                id: id,
+                deletedAt: null
+            },
+            data: {
+                firstname: data.firstname,
+                lastname: data.lastname,
+                companyName: data.companyName,
+                email: data.email,
+                phoneNumber: data.phoneNumber,
+                businessPhone: data.businessPhone,
+                mobilePhone: data.mobilePhone,
+                address: data.address
+            }
+        });
+
+        return updateClient;
+
+    }
+
+    // DELETE CLIENT METHOD
+    async delete(id: number) {
+
+        const deleteClient = await prisma.client.update({
+            where: {
+                id: id,
+                deletedAt: null
+            },
+            data: {
+                deletedAt: new Date(),
+                invoices: {
+                    updateMany: {
+                        where: {
+                            clientId: id,
+                            deletedAt: null
+                        },
+                        data: {
+                            deletedAt: new Date()
+                        }
+                    }
+                }
+            }
+        });
+
+        return deleteClient;
+
+    }
+
+    // CREATE INVOICES METHOD
+    async createMany(id: number, data: any[]) {
+
+        const invoiceData = data.map((invoice) => ({
+            ...invoice,
+            clientId: id
+        }));
+
+        const createManyInvoices = await prisma.invoices.createMany({
+            data: invoiceData,
+            skipDuplicates: true,
+        });
+
+        return createManyInvoices;
+
+    }
+
+    // UPDATE MANY INVOICES METHOD
+    async updateMany(clientId: number, totalOutstanding: number) {
+        const invoices = await prisma.invoices.updateMany({
+            where: {
+                clientId: clientId,
+                deletedAt: null
+            },
+            data: {
+                totalOutstanding: totalOutstanding
+            }
+        });
+
+        return invoices;
+    }
+
+    // UPDATE INVOICE METHOD
+    async updateInvoice(id: number, data: invoiceType) {
+
+        const editInvoice = await prisma.invoices.update({
+            where: {
+                id: id,
+                deletedAt: null
+            },
+            data: {
+                description: data.description,
+                rate: data.rate,
+                quantity: data.quantity,
+                lineTotal: data.lineTotal,
+                dueDate: data.dueDate,
+                totalOutstanding: data.totalOutstanding
+            }
+        });
+
+        return editInvoice;
+
+    }
+
+    // DELETE INVOICE METHOD
+    async deleteInvoice(id: number, data: invoiceType) {
+
+        const removeInvoice = await prisma.invoices.update({
+            where: {
+                id: id,
+                deletedAt: null
+            },
+            data: {
+                deletedAt: new Date(),
+                totalOutstanding: data.totalOutstanding
+            }
+        });
+
+        return removeInvoice;
+
     }
 
     // INVOICES LIST w/ SEARCH AND PAGINATION
