@@ -19,7 +19,6 @@ class ClientController {
         this.list = this.list.bind(this);
         this.updateInvoice = this.updateInvoice.bind(this);
         this.deleteInvoice = this.deleteInvoice.bind(this);
-        this.clientWithInvoiceList = this.clientWithInvoiceList.bind(this);
         this.get = this.get.bind(this);
         this.getInvoice = this.getInvoice.bind(this);
         this.invoiceList = this.invoiceList.bind(this);
@@ -73,46 +72,19 @@ class ClientController {
 
     }
 
-    // CREATE INVOICES METHOD
-    async createMany(req: Request, res: Response) {
+    // CLIENT and INVOICE LIST w/ SEARCH AND PAGINATION
+    async list(req: Request, res: Response) {
+
         try {
 
-            const id = Number(req.params.id);
+            const searchResults = await this.clientService.list(req);
 
-            const validation = createInvoicesArraySchema.safeParse(req.body.invoices);
-
-            if (validation.error) {
-                return AppResponse.sendErrors({
-                    res,
-                    data: null,
-                    message: validation.error.errors[0].message,
-                    code: 403
-                });
-            } else {
-
-                // const areInvoicesValid = await this.clientService.createMany(validation.data);
-
-                const areInvoicesValid = await this.clientService.createMany(id, validation.data);
-
-                if (!areInvoicesValid) {
-                    return AppResponse.sendErrors({
-                        res,
-                        data: null,
-                        message: "Invalid Inputs!",
-                        code: 403
-                    });
-                } else {
-                    return AppResponse.sendSuccessful({
-                        res,
-                        data: {
-                            invoices: areInvoicesValid
-                        },
-                        message: "Successfully Created!",
-                        code: 201
-                    });
-                }
-
-            }
+            return AppResponse.sendSuccessful({
+                res,
+                data: searchResults,
+                message: "Result!",
+                code: 200
+            });
 
         } catch (error: any) {
             return AppResponse.sendErrors({
@@ -122,6 +94,7 @@ class ClientController {
                 code: 500
             });
         }
+
     }
 
     // UPDATE CLIENT METHOD
@@ -247,19 +220,46 @@ class ClientController {
 
     }
 
-    // CLIENT LIST w/ SEARCH AND PAGINATION
-    async list(req: Request, res: Response) {
-
+    // CREATE INVOICES METHOD
+    async createMany(req: Request, res: Response) {
         try {
 
-            const searchResults = await this.clientService.list(req);
+            const id = Number(req.params.id);
 
-            return AppResponse.sendSuccessful({
-                res,
-                data: searchResults,
-                message: "Result!",
-                code: 200
-            });
+            const validation = createInvoicesArraySchema.safeParse(req.body.invoices);
+
+            if (validation.error) {
+                return AppResponse.sendErrors({
+                    res,
+                    data: null,
+                    message: validation.error.errors[0].message,
+                    code: 403
+                });
+            } else {
+
+                // const areInvoicesValid = await this.clientService.createMany(validation.data);
+
+                const areInvoicesValid = await this.clientService.createMany(id, validation.data);
+
+                if (!areInvoicesValid) {
+                    return AppResponse.sendErrors({
+                        res,
+                        data: null,
+                        message: "Invalid Inputs!",
+                        code: 403
+                    });
+                } else {
+                    return AppResponse.sendSuccessful({
+                        res,
+                        data: {
+                            invoices: areInvoicesValid
+                        },
+                        message: "Successfully Created!",
+                        code: 201
+                    });
+                }
+
+            }
 
         } catch (error: any) {
             return AppResponse.sendErrors({
@@ -269,7 +269,6 @@ class ClientController {
                 code: 500
             });
         }
-
     }
 
     // UPDATE INVOICE METHOD
@@ -377,36 +376,13 @@ class ClientController {
             } else {
                 return AppResponse.sendSuccessful({
                     res,
-                    data: isInvoiceExist,
+                    data: {
+                        invoice: isInvoiceExist
+                    },
                     message: "Successfully Retrieved!",
                     code: 200
                 });
             }
-
-        } catch (error: any) {
-            return AppResponse.sendErrors({
-                res,
-                data: null,
-                message: error.message,
-                code: 500
-            });
-        }
-
-    }
-
-    // CLIENT WITH INVOICE LIST w/ SEARCH AND PAGINATION
-    async clientWithInvoiceList(req: Request, res: Response) {
-
-        try {
-
-            const searchResults = await this.clientService.clientWithInvoiceList(req);
-
-            return AppResponse.sendSuccessful({
-                res,
-                data: searchResults,
-                message: "Result!",
-                code: 200
-            });
 
         } catch (error: any) {
             return AppResponse.sendErrors({
