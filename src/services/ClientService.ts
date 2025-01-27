@@ -126,19 +126,24 @@ class ClientService {
         }
 
         // STEP 1: GET ALL LINE TOTAL OF SELECTED CLIENT IF THERE IS
-        const existingInvoices = await this.clientRepo.getAllLineTotal(id);
-        const existingTotalOutstanding = existingInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
+        const clientInvoices = await this.clientRepo.getAllLineTotal(id);
+        const existingTotalOutstanding = clientInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
 
         const lastInvoiceNumber = await this.clientRepo.validateInvoiceNumber();
         // console.log(`Last Invoice Number: ${lastInvoiceNumber}`);
-        let newInvoiceNumber: string;
+        let baseInvoiceNumber: string;
         const currentYear = new Date().getFullYear().toString().slice(-2);
 
-        if (lastInvoiceNumber) {
-            const lastNumber = parseInt(lastInvoiceNumber.invoiceNumber.split("-")[2], 10) + 1;
-            newInvoiceNumber = `LWS-${currentYear}-${lastNumber.toString().padStart(4, "0")}`;
+        if(clientInvoices.length > 0) {
+            const lastClientInvoice = clientInvoices[clientInvoices.length - 1];
+            baseInvoiceNumber = lastClientInvoice.invoiceNumber;
         } else {
-            newInvoiceNumber = `LWS-${currentYear}-0001`;
+            if (lastInvoiceNumber) {
+                const lastNumber = parseInt(lastInvoiceNumber.invoiceNumber.split("-")[2], 10) + 1;
+                baseInvoiceNumber = `LWS-${currentYear}-${lastNumber.toString().padStart(4, "0")}`;
+            } else {
+                baseInvoiceNumber = `LWS-${currentYear}-0001`;
+            }
         }
 
         // STEP 2: CALCULATE LINE TOTAL FOR EACH INVOICR AND TOTAL OUTSTANDING
@@ -165,7 +170,7 @@ class ClientService {
         if (createInvoices && createInvoices.length > 0) {
             return await this.clientRepo.createMany(clientId.id, createInvoices.map((invoice: any) => ({
                 ...invoice,
-                invoiceNumber: newInvoiceNumber,
+                invoiceNumber: baseInvoiceNumber,
                 totalOutstanding: totalOutstanding,
             })));
         }
@@ -176,6 +181,73 @@ class ClientService {
             invoices: createInvoices
         }
     }
+
+    // CREATE INVOICES METHOD
+    // async createMany(id: number, data: any[]) {
+    //     const clientId = await this.clientRepo.show(id);
+
+    //     if (!clientId) {
+    //         return null;
+    //     }
+
+    //     // STEP 1: CHECK IF CLIENT HAS EXISTING INVOICES
+    //     const clientInvoices = await this.clientRepo.getAllLineTotal(id); // FETCH ALL INVOICES FOR THE CLIENT
+    //     const existingTotalOutstanding = clientInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
+
+    //     // DETERMINE THE BASE INVOICE NUMBER
+    //     let baseInvoiceNumber: string;
+    //     const currentYear = new Date().getFullYear().toString().slice(-2);
+
+    //     if (clientInvoices.length > 0) {
+    //         // CLIENT HAS EXISTING INVOICES: USE THE LATEST INVOICE NUMBER
+    //         const lastClientInvoice = clientInvoices[clientInvoices.length - 1];
+    //         baseInvoiceNumber = lastClientInvoice.invoiceNumber || '';
+    //     } else {
+    //         // NO INVOICES FOR THE CLIENT, CHECK GLOBAL LAST INVOICE
+    //         const globalLastInvoice = await this.clientRepo.validateInvoiceNumber();
+    //         if (globalLastInvoice) {
+    //             const lastGlobalInvoiceNumber = parseInt(globalLastInvoice.invoiceNumber.split("-")[2], 10) + 1;
+    //             baseInvoiceNumber = `LWS-${currentYear}-${lastGlobalInvoiceNumber.toString().padStart(4, "0")}`;
+    //         } else {
+    //             // NO INVOICE AT ALL: START FROM LWS<CURRENT YEAR>-0001
+    //             baseInvoiceNumber = `LWS-${currentYear}-0001`;
+    //         }
+    //     }
+
+    //     // STEP 2: CALCULATE LINE TOTAL FOR EACH INVOICE
+    //     const createInvoices = data.map((invoice: any, index: number) => {
+    //         const lineTotal = Number(invoice.rate || 0) * Number(invoice.quantity || 0);
+    //         const invoiceNumber = `${baseInvoiceNumber.split("-")[0]}-${baseInvoiceNumber.split("-")[1]}-${(parseInt(baseInvoiceNumber.split("-")[2], 10) + index).toString().padStart(4, "0")}`;
+
+    //         return {
+    //             ...invoice,
+    //             lineTotal,
+    //             invoiceNumber,
+    //         };
+    //     });
+
+    //     // STEP 3: CALCULATE TOTAL OUTSTANDING
+    //     const newTotalOutstanding = createInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
+    //     const totalOutstanding = existingTotalOutstanding + newTotalOutstanding;
+
+    //     // STEP 4: UPDATE CLIENT'S TOTAL OUTSTANDING
+    //     await this.clientRepo.updateMany(id, totalOutstanding);
+
+    //     // STEP 5: SAVE THE INVOICES
+    //     if (createInvoices.length > 0) {
+    //         return await this.clientRepo.createMany(clientId.id, createInvoices.map((invoice: any) => ({
+    //             ...invoice,
+    //             totalOutstanding,
+    //         })));
+    //     }
+
+    //     return {
+    //         clientId,
+    //         totalOutstanding,
+    //         invoices: createInvoices,
+    //     };
+    // }
+
 
 
     // UPDATE INVOICE METHOD
