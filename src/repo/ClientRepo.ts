@@ -120,6 +120,7 @@ class ClientRepo {
                 deletedAt: null
             },
             select: {
+                invoiceNumber: true,
                 lineTotal: true
             }
         });
@@ -156,21 +157,7 @@ class ClientRepo {
             take: limit,
             where: {
                 deletedAt: null,
-                invoices: {
-                    some: {
-                        deletedAt: null,
-                        OR: [
-                            { invoiceNumber: { contains: query, mode: "insensitive" } },
-                            { description: { contains: query, mode: "insensitive" } },
-                            ...invoiceFilters
-                        ]
-                    }
-                },
                 OR: [
-                    {
-                        deletedAt: null,
-                        companyName: { contains: query, mode: "insensitive" }
-                    },
                     {
                         invoices: {
                             some: {
@@ -181,6 +168,11 @@ class ClientRepo {
                                     ...invoiceFilters
                                 ]
                             }
+                        }
+                    },
+                    {
+                        invoices: {
+                            none: {}
                         }
                     }
                 ]
@@ -204,7 +196,8 @@ class ClientRepo {
                 createdAt: "desc"
             }
         });
-
+        
+        
         const totalClients = await prisma.client.count({
             where: {
                 deletedAt: null,
