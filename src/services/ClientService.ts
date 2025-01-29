@@ -200,12 +200,12 @@ class ClientService {
         const existingInvoices = await this.clientRepo.getAllLineTotal(clientId);
         const existingTotalOutstanding = existingInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
 
-        const lineTotal = (data.rate || 0) * (data.quantity || 0);
-        const newTotalOutstanding = existingTotalOutstanding;
+        const newLineTotal = (data.rate || 0) * (data.quantity || 0);
+        const newTotalOutstanding = existingTotalOutstanding - Number(invoice.lineTotal || 0) + newLineTotal;
 
         const invoiceData = {
             ...data,
-            lineTotal: lineTotal,
+            lineTotal: newLineTotal,
             totalOutstanding: newTotalOutstanding
         }
 
