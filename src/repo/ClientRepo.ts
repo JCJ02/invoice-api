@@ -60,7 +60,11 @@ class ClientRepo {
                 createdAt:  true,
                 updatedAt: true,
                 deletedAt: true,
-                invoices: true
+                invoices: {
+                    where: {
+                        deletedAt: null
+                    }
+                }
             }
         });
 
@@ -140,15 +144,14 @@ class ClientRepo {
             invoiceFilters.push({ dueDate: { equals: parsedDate } });
             invoiceFilters.push({ createdAt: { equals: parsedDate } });
             invoiceFilters.push({ updatedAt: { equals: parsedDate } });
-            invoiceFilters.push({ deletedAt: { equals: parsedDate } });
         }
 
         if (parsedNumber !== undefined) {
-            invoiceFilters.push({ id: { equals: parsedNumber }});
-            invoiceFilters.push({ clientId: { equals: parsedNumber }});
-            invoiceFilters.push({ rate: { equals: parsedNumber }});
-            invoiceFilters.push({ quantity: { equals: parsedNumber }});
-            invoiceFilters.push({ lineTotal: { equals: parsedNumber }});
+            invoiceFilters.push({ id: { equals: parsedNumber } });
+            invoiceFilters.push({ clientId: { equals: parsedNumber } });
+            invoiceFilters.push({ rate: { equals: parsedNumber } });
+            invoiceFilters.push({ quantity: { equals: parsedNumber } });
+            invoiceFilters.push({ lineTotal: { equals: parsedNumber } });
             invoiceFilters.push({ totalOutstanding: { equals: parsedNumber } });
         }
 
@@ -156,23 +159,28 @@ class ClientRepo {
             skip,
             take: limit,
             where: {
-                deletedAt: null,
                 OR: [
                     {
                         invoices: {
                             some: {
-                                deletedAt: null,
-                                OR: [
-                                    { invoiceNumber: { contains: query, mode: "insensitive" } },
-                                    { description: { contains: query, mode: "insensitive" } },
-                                    ...invoiceFilters
+                                AND: [
+                                    { deletedAt: null },
+                                    {
+                                        OR: [
+                                            { invoiceNumber: { contains: query, mode: "insensitive" } },
+                                            { description: { contains: query, mode: "insensitive" } },
+                                            ...invoiceFilters
+                                        ]
+                                    }
                                 ]
                             }
                         }
                     },
                     {
                         invoices: {
-                            none: {}
+                            none: {
+                                deletedAt: { not: null }
+                            }
                         }
                     }
                 ]
@@ -180,11 +188,15 @@ class ClientRepo {
             include: {
                 invoices: {
                     where: { 
-                        deletedAt: null,
-                        OR: [
-                            { invoiceNumber: { contains: query, mode: "insensitive" } },
-                            { description: { contains: query, mode: "insensitive" } },
-                            ...invoiceFilters
+                        AND: [
+                            { deletedAt: null },
+                            {
+                                OR: [
+                                    { invoiceNumber: { contains: query, mode: "insensitive" } },
+                                    { description: { contains: query, mode: "insensitive" } },
+                                    ...invoiceFilters
+                                ]
+                            }
                         ]
                     },
                     orderBy: {
@@ -196,18 +208,20 @@ class ClientRepo {
                 createdAt: "desc"
             }
         });
-        
-        
+
         const totalClients = await prisma.client.count({
             where: {
-                deletedAt: null,
                 invoices: {
                     some: {
-                        deletedAt: null,
-                        OR: [
-                            { invoiceNumber: { contains: query, mode: "insensitive" } },
-                            { description: { contains: query, mode: "insensitive" } },
-                            ...invoiceFilters
+                        AND: [
+                            { deletedAt: null },
+                            {
+                                OR: [
+                                    { invoiceNumber: { contains: query, mode: "insensitive" } },
+                                    { description: { contains: query, mode: "insensitive" } },
+                                    ...invoiceFilters
+                                ]
+                            }
                         ]
                     }
                 }
