@@ -1178,4 +1178,5 @@ clientRoute.get("/retrieve/invoice-list/:id", authMiddleware, clientController.g
 
 clientRoute.get("/retrieve/invoice-list", authMiddleware, clientController.invoiceList);
 
+
 export default clientRoute;
