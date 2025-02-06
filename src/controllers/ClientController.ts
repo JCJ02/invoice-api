@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import ClientService from "../services/ClientService";
-import AppResponse from "../utils/AppResponse";
+import AppResponse from "../utils/appResponse";
 import { createClientSchema, updateClientSchema } from "../utils/validations/ClientSchema";
 import { createInvoicesArraySchema, updateInvoiceSchema } from "../utils/validations/InvoiceSchema";
 
