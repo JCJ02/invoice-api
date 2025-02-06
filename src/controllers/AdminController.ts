@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import AdminService from "../services/AdminService";
-import AppResponse from "../utils/AppResponse";
+import AppResponse from "../utils/appResponse";
 import TestService from "../services/TestService";
 import { authMiddlewareRequest } from "../types/AuthMiddlewareType";
 import { authAdminSchema, createAdminSchema } from "../utils/validations/AdminSchema";
