@@ -1,14 +1,14 @@
 import { Request } from "express";
-import ClientRepo from "../repo/ClientRepo";
+import ClientRepository from "../repositories/ClientRepository";
 import { clientType, invoiceType } from "../types/ClientTypes";
 
 class ClientService {
 
-    private clientRepo;
+    private clientRepository;
 
     constructor() {
 
-        this.clientRepo = new ClientRepo();
+        this.clientRepository = new ClientRepository();
 
     }
 
@@ -19,7 +19,7 @@ class ClientService {
             ...data
         }
 
-        const createClient = await this.clientRepo.create(clientData);
+        const createClient = await this.clientRepository.create(clientData);
 
         return createClient;
 
@@ -28,7 +28,7 @@ class ClientService {
     // SHOW METHOD
     async show(id: number) {
 
-        const isClientExist = await this.clientRepo.show(id);
+        const isClientExist = await this.clientRepository.show(id);
 
         if (!isClientExist) {
             return null;
@@ -41,7 +41,7 @@ class ClientService {
     // RETRIEVE INVOICE ID METHOD 
     async retrieve(id: number) {
 
-        const isInvoiceExist = await this.clientRepo.retrieve(id);
+        const isInvoiceExist = await this.clientRepository.retrieve(id);
 
         if (!isInvoiceExist) {
             return null;
@@ -60,7 +60,7 @@ class ClientService {
 
         const skip = (page - 1) * limit;
 
-        const searchResults = await this.clientRepo.list(query, skip, limit);
+        const searchResults = await this.clientRepository.list(query, skip, limit);
 
         return searchResults;
 
@@ -69,7 +69,7 @@ class ClientService {
     // UPDATE CLIENT METHOD
     async update(id: number, data: clientType) {
 
-        const client = await this.clientRepo.show(id);
+        const client = await this.clientRepository.show(id);
 
         if (!client) {
             return null;
@@ -79,7 +79,7 @@ class ClientService {
                 ...data
             }
 
-            const updateClient = await this.clientRepo.update(client.id, clientData);
+            const updateClient = await this.clientRepository.update(client.id, clientData);
 
             return updateClient;
 
@@ -90,13 +90,13 @@ class ClientService {
     // DELETE CLIENT METHOD
     async delete(id: number) {
 
-        const client = await this.clientRepo.show(id);
+        const client = await this.clientRepository.show(id);
 
         if (!client) {
             return null;
         } else {
 
-            const deleteClient = await this.clientRepo.delete(client.id);
+            const deleteClient = await this.clientRepository.delete(client.id);
 
             return deleteClient;
         }
@@ -106,7 +106,7 @@ class ClientService {
     // GET CLIENT METHOD
     async get(id: number) {
 
-        const client = await this.clientRepo.get(id);
+        const client = await this.clientRepository.get(id);
 
         if (!client) {
             return null;
@@ -119,17 +119,17 @@ class ClientService {
     // CREATE INVOICES METHOD
     async createMany(id: number, data: any[]) {
 
-        const clientId = await this.clientRepo.show(id);
+        const clientId = await this.clientRepository.show(id);
 
         if (!clientId) {
             return null;
         }
 
         // STEP 1: GET ALL LINE TOTAL OF SELECTED CLIENT IF THERE IS
-        const clientInvoices = await this.clientRepo.getAllLineTotal(id);
+        const clientInvoices = await this.clientRepository.getAllLineTotal(id);
         const existingTotalOutstanding = clientInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
 
-        const lastInvoiceNumber = await this.clientRepo.validateInvoiceNumber();
+        const lastInvoiceNumber = await this.clientRepository.validateInvoiceNumber();
         // console.log(`Last Invoice Number: ${lastInvoiceNumber}`);
         let baseInvoiceNumber: string;
         const currentYear = new Date().getFullYear().toString().slice(-2);
@@ -146,7 +146,7 @@ class ClientService {
             }
         }
 
-        // STEP 2: CALCULATE LINE TOTAL FOR EACH INVOICR AND TOTAL OUTSTANDING
+        // STEP 2: CALCULATE LINE TOTAL FOR EACH INVOICE AND TOTAL OUTSTANDING
         const createInvoices = data.map((invoice: any) => {
             // CALCULATE LINE TOTAL = RATE * QUANTITY
             const lineTotal = Number(invoice.rate || 0) * Number(invoice.quantity || 0);
@@ -164,11 +164,11 @@ class ClientService {
         const totalOutstanding = existingTotalOutstanding + newTotalOutstanding;
 
         // STEP 4: UPDATE ALL THE TOTAL OUTSTANDING
-        await this.clientRepo.updateMany(id, totalOutstanding);
+        await this.clientRepository.updateMany(id, totalOutstanding);
 
         // STEP 5: SAVE THE INVOICES WITH THE CALCULATED LINE TOTAL AND TOTAL OUTSTANDING
         if (createInvoices && createInvoices.length > 0) {
-            return await this.clientRepo.createMany(clientId.id, createInvoices.map((invoice: any) => ({
+            return await this.clientRepository.createMany(clientId.id, createInvoices.map((invoice: any) => ({
                 ...invoice,
                 invoiceNumber: baseInvoiceNumber,
                 totalOutstanding: totalOutstanding,
@@ -185,7 +185,7 @@ class ClientService {
     // UPDATE INVOICE METHOD
     async updateInvoice(id: number, data: invoiceType) {
 
-        const invoice = await this.clientRepo.retrieve(id);
+        const invoice = await this.clientRepository.retrieve(id);
 
         if (!invoice) {
             return null;
@@ -197,7 +197,7 @@ class ClientService {
             return null;
         }
 
-        const existingInvoices = await this.clientRepo.getAllLineTotal(clientId);
+        const existingInvoices = await this.clientRepository.getAllLineTotal(clientId);
         const existingTotalOutstanding = existingInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
 
         const newLineTotal = (data.rate || 0) * (data.quantity || 0);
@@ -209,8 +209,8 @@ class ClientService {
             totalOutstanding: newTotalOutstanding
         }
 
-        const editedInvoice = await this.clientRepo.updateInvoice(invoice.id, invoiceData);
-        const updatedInvoices = await this.clientRepo.updateMany(clientId, newTotalOutstanding);
+        const editedInvoice = await this.clientRepository.updateInvoice(invoice.id, invoiceData);
+        const updatedInvoices = await this.clientRepository.updateMany(clientId, newTotalOutstanding);
 
         return {
             editedInvoice,
@@ -222,7 +222,7 @@ class ClientService {
     // DELETE INVOICE METHOD
     async deleteInvoice(id: number, data: invoiceType) {
 
-        const invoice = await this.clientRepo.retrieve(id);
+        const invoice = await this.clientRepository.retrieve(id);
 
         if (!invoice) {
             return null;
@@ -234,17 +234,17 @@ class ClientService {
             return null;
         }
 
-        const deletedInvoice = await this.clientRepo.deleteInvoice(invoice.id, data);
+        const deletedInvoice = await this.clientRepository.deleteInvoice(invoice.id, data);
 
         // RECALCULATE THE TOTAL OUTSTANDING AFTER DELETION
-        const remainingInvoices = await this.clientRepo.getAllLineTotal(clientId);
+        const remainingInvoices = await this.clientRepository.getAllLineTotal(clientId);
         const updatedTotalOutstanding = remainingInvoices.reduce(
             (sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0),
             0
         );
 
         // UPDATE TOTAL OUTSTANDING FOR ALL REMAINING INVOICES
-        const updatedInvoices = await this.clientRepo.updateMany(clientId, updatedTotalOutstanding);
+        const updatedInvoices = await this.clientRepository.updateMany(clientId, updatedTotalOutstanding);
 
         return {
             deletedInvoice,
@@ -256,7 +256,7 @@ class ClientService {
     // GET INVOICE METHOD 
     async getInvoice(id: number) {
 
-        const invoice = await this.clientRepo.retrieve(id);
+        const invoice = await this.clientRepository.retrieve(id);
 
         if (!invoice) {
             return null;
@@ -276,7 +276,7 @@ class ClientService {
 
         const skip = (page - 1) * limit;
 
-        const searchResults = await this.clientRepo.invoiceList(query, skip, limit);
+        const searchResults = await this.clientRepository.invoiceList(query, skip, limit);
 
         return searchResults;
 
