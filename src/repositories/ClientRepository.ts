@@ -1,7 +1,7 @@
 import { clientType, invoiceType } from "../types/ClientTypes";
 import prisma from "../utils/prismaClient";
 
-class ClientRepo {
+class ClientRepository {
 
     // CREATE CLIENT METHOD
     async create(data: clientType) {
@@ -156,9 +156,10 @@ class ClientRepo {
         }
 
         const clients = await prisma.client.findMany({
-            skip,
+            skip: skip,
             take: limit,
             where: {
+                deletedAt: null,
                 OR: [
                     {
                         invoices: {
@@ -179,7 +180,7 @@ class ClientRepo {
                     {
                         invoices: {
                             none: {
-                                deletedAt: { not: null }
+                                deletedAt: null
                             }
                         }
                     }
@@ -188,15 +189,11 @@ class ClientRepo {
             include: {
                 invoices: {
                     where: { 
-                        AND: [
-                            { deletedAt: null },
-                            {
-                                OR: [
-                                    { invoiceNumber: { contains: query, mode: "insensitive" } },
-                                    { description: { contains: query, mode: "insensitive" } },
-                                    ...invoiceFilters
-                                ]
-                            }
+                        deletedAt: null,                
+                        OR: [
+                            { invoiceNumber: { contains: query, mode: "insensitive" } },
+                            { description: { contains: query, mode: "insensitive" } },
+                            ...invoiceFilters
                         ]
                     },
                     orderBy: {
@@ -211,6 +208,7 @@ class ClientRepo {
 
         const totalClients = await prisma.client.count({
             where: {
+                deletedAt: null,
                 invoices: {
                     some: {
                         AND: [
@@ -230,6 +228,8 @@ class ClientRepo {
 
         return { clients, totalClients };
     }
+
+
 
     // UPDATE CLIENT METHOD
     async update(id: number, data: clientType) {
@@ -288,7 +288,7 @@ class ClientRepo {
 
         const invoiceData = data.map((invoice) => ({
             ...invoice,
-            clientId: id
+            clientId: id,
         }));
 
         const createManyInvoices = await prisma.invoices.createMany({
@@ -329,7 +329,9 @@ class ClientRepo {
                 quantity: data.quantity,
                 lineTotal: data.lineTotal,
                 dueDate: data.dueDate,
-                totalOutstanding: data.totalOutstanding
+                totalOutstanding: data.totalOutstanding,
+                notes: data.notes,
+                terms: data.terms
             }
         });
 
@@ -407,4 +409,4 @@ class ClientRepo {
 
 }
 
-export default ClientRepo;
+export default ClientRepository;
