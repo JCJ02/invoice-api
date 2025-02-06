@@ -1,18 +1,18 @@
-import TestRepo from "../repo/TestRepo";
+import TestRepository from "../repositories/TestRepository";
 
 class TestService {
 
-    private testRepo;
+    private testRepository;
 
     constructor() {
 
-        this.testRepo = new TestRepo();
+        this.testRepository = new TestRepository();
 
     }
 
     async index(data: { message: string }) {
 
-        return await this.testRepo.index(data);
+        return await this.testRepository.index(data);
 
     }
 
