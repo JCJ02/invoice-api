@@ -58,6 +58,8 @@ model Invoices {
   totalOutstanding Decimal?  @default(0.00) @db.Decimal(65, 2)
   notes            String?
   terms            String?
+  isDraft          Boolean   @default(false)
+  isRecurring      Boolean   @default(false)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   deletedAt        DateTime?
