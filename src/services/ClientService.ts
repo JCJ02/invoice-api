@@ -126,7 +126,9 @@ class ClientService {
         }
 
         // STEP 1: GET ALL LINE TOTAL OF SELECTED CLIENT IF THERE IS
-        const clientInvoices = await this.clientRepository.getAllLineTotal(id);
+        // const clientInvoices = await this.clientRepository.getAllLineTotal(id);
+        // const existingTotalOutstanding = clientInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
+        const clientInvoices = await this.clientRepository.getAllLineTotal(id, false);
         const existingTotalOutstanding = clientInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
 
         const lastInvoiceNumber = await this.clientRepository.validateInvoiceNumber();
@@ -164,7 +166,7 @@ class ClientService {
         const totalOutstanding = existingTotalOutstanding + newTotalOutstanding;
 
         // STEP 4: UPDATE ALL THE TOTAL OUTSTANDING
-        await this.clientRepository.updateMany(id, totalOutstanding);
+        await this.clientRepository.updateManyTotalOutstanding(id, totalOutstanding);
 
         // STEP 5: SAVE THE INVOICES WITH THE CALCULATED LINE TOTAL AND TOTAL OUTSTANDING
         if (createInvoices && createInvoices.length > 0) {
@@ -179,6 +181,74 @@ class ClientService {
             clientId,
             totalOutstanding,
             invoices: createInvoices
+        }
+    }
+
+    // DRAFT MANY INVOICES METHOD
+    async draftMany(id: number, data: any[]) {
+
+        const clientId = await this.clientRepository.show(id);
+
+        if (!clientId) {
+            return null;
+        }
+
+        // STEP 1: GET ALL LINE TOTAL OF SELECTED CLIENT IF THERE IS
+        // const clientInvoices = await this.clientRepository.getAllLineTotal(id);
+        // const existingTotalOutstanding = clientInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
+        const clientInvoices = await this.clientRepository.getAllLineTotal(id, false);
+        const existingTotalOutstanding = clientInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
+
+        const lastInvoiceNumber = await this.clientRepository.validateInvoiceNumber();
+        // console.log(`Last Invoice Number: ${lastInvoiceNumber}`);
+        let baseInvoiceNumber: string;
+        const currentYear = new Date().getFullYear().toString().slice(-2);
+
+        if(clientInvoices.length > 0) {
+            const lastClientInvoice = clientInvoices[clientInvoices.length - 1];
+            baseInvoiceNumber = lastClientInvoice.invoiceNumber;
+        } else {
+            if (lastInvoiceNumber) {
+                const lastNumber = parseInt(lastInvoiceNumber.invoiceNumber.split("-")[2], 10) + 1;
+                baseInvoiceNumber = `LWS-${currentYear}-${lastNumber.toString().padStart(4, "0")}`;
+            } else {
+                baseInvoiceNumber = `LWS-${currentYear}-0001`;
+            }
+        }
+
+        // STEP 2: CALCULATE LINE TOTAL FOR EACH INVOICE AND TOTAL OUTSTANDING
+        const draftInvoices = data.map((invoice: any) => {
+            // CALCULATE LINE TOTAL = RATE * QUANTITY
+            const lineTotal = Number(invoice.rate || 0) * Number(invoice.quantity || 0);
+            return {
+                ...invoice,
+                lineTotal: lineTotal,
+            };
+        });
+
+        // STEP 3: CALCULATE TOTAL OUTSTANDING BASED ON EXISTING INVOICES AND NEW INVOICES (SUM OF ALL LINE TOTAL VALUES)
+        const newTotalOutstanding = draftInvoices.reduce((sum: number, invoice: any) => {
+            return sum + Number(invoice.lineTotal || 0);
+        }, 0);
+        
+        const totalOutstanding = existingTotalOutstanding + newTotalOutstanding;
+
+        // STEP 4: UPDATE ALL THE TOTAL OUTSTANDING
+        await this.clientRepository.updateManyDraftTotalOutstanding(id, totalOutstanding);
+
+        // STEP 5: SAVE THE INVOICES WITH THE CALCULATED LINE TOTAL AND TOTAL OUTSTANDING
+        if (draftInvoices && draftInvoices.length > 0) {
+            return await this.clientRepository.draftMany(clientId.id, draftInvoices.map((invoice: any) => ({
+                ...invoice,
+                invoiceNumber: baseInvoiceNumber,
+                totalOutstanding: totalOutstanding,
+            })));
+        }
+
+        return {
+            clientId,
+            totalOutstanding,
+            invoices: draftInvoices
         }
     }
 
@@ -210,7 +280,7 @@ class ClientService {
         }
 
         const editedInvoice = await this.clientRepository.updateInvoice(invoice.id, invoiceData);
-        const updatedInvoices = await this.clientRepository.updateMany(clientId, newTotalOutstanding);
+        const updatedInvoices = await this.clientRepository.updateManyTotalOutstanding(clientId, newTotalOutstanding);
 
         return {
             editedInvoice,
@@ -244,7 +314,7 @@ class ClientService {
         );
 
         // UPDATE TOTAL OUTSTANDING FOR ALL REMAINING INVOICES
-        const updatedInvoices = await this.clientRepository.updateMany(clientId, updatedTotalOutstanding);
+        const updatedInvoices = await this.clientRepository.updateManyTotalOutstanding(clientId, updatedTotalOutstanding);
 
         return {
             deletedInvoice,
@@ -280,6 +350,24 @@ class ClientService {
 
         return searchResults;
 
+    }
+
+    // SUM TOTAL OUTSTANDING FUNCTION
+    async sumTotalOutstanding(): Promise<number> {
+        const totalOutstanding = await this.clientRepository.sumTotalOutstanding();
+        return totalOutstanding;
+    }
+
+    // SUM DRAFT TOTAL OUTSTANDING FUNCTION
+    async sumDraftTotalOutstanding(): Promise<number> {
+        const draftTotalOutstanding = await this.clientRepository.sumDraftTotalOutstanding();
+        return draftTotalOutstanding;
+    }
+
+    // SUM DUE DATE TOTAL OUTSTANDING FUNCTION
+    async sumDueDateTotalOutstanding(): Promise<number> {
+        const dueDateTotalOutstanding = await this.clientRepository.sumDueDateTotalOutstanding();
+        return dueDateTotalOutstanding;
     }
 
 }

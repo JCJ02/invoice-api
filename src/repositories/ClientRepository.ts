@@ -117,15 +117,18 @@ class ClientRepository {
 
     }
 
-    async getAllLineTotal(clientId: number) {
+    // GET ALL LINE TOTAL
+    async getAllLineTotal(clientId: number, isDraft?: boolean) {
         const invoices = await prisma.invoices.findMany({
             where: {
                 clientId: clientId,
-                deletedAt: null
+                deletedAt: null,
+                ...(typeof isDraft === "boolean" && { isDraft })
             },
             select: {
                 invoiceNumber: true,
-                lineTotal: true
+                lineTotal: true,
+                isDraft: true
             }
         });
     
@@ -229,8 +232,6 @@ class ClientRepository {
         return { clients, totalClients };
     }
 
-
-
     // UPDATE CLIENT METHOD
     async update(id: number, data: clientType) {
 
@@ -300,12 +301,47 @@ class ClientRepository {
 
     }
 
-    // UPDATE MANY INVOICES METHOD
-    async updateMany(clientId: number, totalOutstanding: number) {
+    // DRAFT MANY INVOICES METHOD
+    async draftMany(id: number, data: any[]) {
+
+        const invoiceData = data.map((invoice) => ({
+            ...invoice,
+            clientId: id,
+            isDraft: true,
+        }));
+
+        const createManyInvoices = await prisma.invoices.createMany({
+            data: invoiceData,
+            skipDuplicates: true
+        });
+
+        return createManyInvoices;
+
+    }
+
+    // UPDATE MANY TOTAL OUTSTANDING METHOD
+    async updateManyTotalOutstanding(clientId: number, totalOutstanding: number) {
         const invoices = await prisma.invoices.updateMany({
             where: {
                 clientId: clientId,
-                deletedAt: null
+                deletedAt: null,
+                isDraft: false
+            },
+            data: {
+                totalOutstanding: totalOutstanding
+            }
+        });
+
+        return invoices;
+    }
+
+    // UPDATE MANY DRAFT TOTAL OUTSTANDING METHOD
+    async updateManyDraftTotalOutstanding(clientId: number, totalOutstanding: number) {
+        const invoices = await prisma.invoices.updateMany({
+            where: {
+                clientId: clientId,
+                deletedAt: null,
+                isDraft: true
             },
             data: {
                 totalOutstanding: totalOutstanding
@@ -405,6 +441,56 @@ class ClientRepository {
             totalInvoices,
         };
 
+    }
+
+    // SUM TOTAL OUTSTANDING FUNCTION
+    async sumTotalOutstanding(): Promise<number> {
+        const result = await prisma.invoices.aggregate({
+          _sum: {
+            lineTotal: true,
+          },
+          where: {
+            deletedAt: null,
+            isDraft: false
+          }
+        });
+    
+        return result._sum.lineTotal?.toNumber() || 0;
+    }
+
+    // SUM TOTAL OUTSTANDING FUNCTION
+    async sumDraftTotalOutstanding(): Promise<number> {
+        const result = await prisma.invoices.aggregate({
+          _sum: {
+            lineTotal: true,
+          },
+          where: {
+            deletedAt: null,
+            isDraft: true
+          }
+        });
+    
+        return result._sum.lineTotal?.toNumber() || 0;
+    }
+
+    // SUM DUE DATE TOTAL OUTSTANDING FUNCTION
+    async sumDueDateTotalOutstanding(): Promise<number> {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const result = await prisma.invoices.aggregate({
+          _sum: {
+            lineTotal: true,
+          },
+          where: {
+            deletedAt: null,
+            isDraft: false,
+            dueDate: {
+                lte: today,
+            },
+          }
+        });
+    
+        return result._sum.lineTotal?.toNumber() || 0;
     }
 
 }

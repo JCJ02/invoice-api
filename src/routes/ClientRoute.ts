@@ -759,6 +759,8 @@ clientRoute.get("/:id", authMiddleware, clientController.get);
 
 clientRoute.post("/create-invoices/:id", authMiddleware, clientController.createMany);
 
+clientRoute.post("/draft-invoices/:id", authMiddleware, clientController.draftMany);
+
 
 /**
  * @swagger
@@ -1178,5 +1180,13 @@ clientRoute.get("/retrieve/invoice-list/:id", authMiddleware, clientController.g
 
 clientRoute.get("/retrieve/invoice-list", authMiddleware, clientController.invoiceList);
 
+
+clientRoute.get("/sum/total-outstanding", authMiddleware, clientController.sumTotalOutstanding);
+
+
+clientRoute.get("/sum/draft-total-outstanding", authMiddleware, clientController.sumDraftTotalOutstanding);
+
+
+clientRoute.get("/sum/due-date-total-outstanding", authMiddleware, clientController.sumDueDateTotalOutstanding);
 
 export default clientRoute;

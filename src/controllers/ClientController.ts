@@ -14,6 +14,7 @@ class ClientController {
 
         this.create = this.create.bind(this);
         this.createMany = this.createMany.bind(this);
+        this.draftMany = this.draftMany.bind(this);
         this.update = this.update.bind(this);
         this.delete = this.delete.bind(this);
         this.list = this.list.bind(this);
@@ -22,6 +23,9 @@ class ClientController {
         this.get = this.get.bind(this);
         this.getInvoice = this.getInvoice.bind(this);
         this.invoiceList = this.invoiceList.bind(this);
+        this.sumTotalOutstanding = this.sumTotalOutstanding.bind(this);
+        this.sumDraftTotalOutstanding = this.sumDraftTotalOutstanding.bind(this);
+        this.sumDueDateTotalOutstanding = this.sumDueDateTotalOutstanding.bind(this);
 
     }
 
@@ -237,15 +241,13 @@ class ClientController {
                 });
             } else {
 
-                // const areInvoicesValid = await this.clientService.createMany(validation.data);
-
                 const areInvoicesValid = await this.clientService.createMany(id, validation.data);
 
                 if (!areInvoicesValid) {
                     return AppResponse.sendErrors({
                         res,
                         data: null,
-                        message: "Invalid Inputs!",
+                        message: "Failed to Create!",
                         code: 403
                     });
                 } else {
@@ -255,6 +257,55 @@ class ClientController {
                             invoices: areInvoicesValid
                         },
                         message: "Successfully Created!",
+                        code: 201
+                    });
+                }
+
+            }
+
+        } catch (error: any) {
+            return AppResponse.sendErrors({
+                res,
+                data: null,
+                message: error.message,
+                code: 500
+            });
+        }
+    }
+
+    // DRAFT MANY INVOICES METHOD
+    async draftMany(req: Request, res: Response) {
+        try {
+
+            const id = Number(req.params.id);
+
+            const validation = createInvoicesArraySchema.safeParse(req.body.invoices);
+
+            if (validation.error) {
+                return AppResponse.sendErrors({
+                    res,
+                    data: null,
+                    message: validation.error.errors[0].message,
+                    code: 403
+                });
+            } else {
+
+                const areInvoicesValid = await this.clientService.draftMany(id, validation.data);
+
+                if (!areInvoicesValid) {
+                    return AppResponse.sendErrors({
+                        res,
+                        data: null,
+                        message: "Failed to Draft!",
+                        code: 403
+                    });
+                } else {
+                    return AppResponse.sendSuccessful({
+                        res,
+                        data: {
+                            invoices: areInvoicesValid
+                        },
+                        message: "Successfully Drafted!",
                         code: 201
                     });
                 }
@@ -418,6 +469,72 @@ class ClientController {
             });
         }
 
+    }
+
+    // SUM TOTAL OUTSTANDING FUNCTION
+    async sumTotalOutstanding(req: Request, res: Response) {
+        try {
+            const totalOutstanding = await this.clientService.sumTotalOutstanding();
+            return AppResponse.sendSuccessful({
+                res,
+                data: {
+                    sum: totalOutstanding
+                },
+                message: "Result!",
+                code: 200
+            });
+        } catch (error: any) {
+            return AppResponse.sendErrors({
+                res,
+                data: null,
+                message: error.message,
+                code: 500
+            });
+        }
+    }
+
+    // SUM TOTAL OUTSTANDING FUNCTION
+    async sumDraftTotalOutstanding(req: Request, res: Response) {
+        try {
+            const draftTotalOutstanding = await this.clientService.sumDraftTotalOutstanding();
+            return AppResponse.sendSuccessful({
+                res,
+                data: {
+                    sum: draftTotalOutstanding
+                },
+                message: "Result!",
+                code: 200
+            });
+        } catch (error: any) {
+            return AppResponse.sendErrors({
+                res,
+                data: null,
+                message: error.message,
+                code: 500
+            });
+        }
+    }
+
+    // SUM DUE DATE TOTAL OUTSTANDING FUNCTION
+    async sumDueDateTotalOutstanding(req: Request, res: Response) {
+        try {
+            const dueDateTotalOutstanding = await this.clientService.sumDueDateTotalOutstanding();
+            return AppResponse.sendSuccessful({
+                res,
+                data: {
+                    sum: dueDateTotalOutstanding
+                },
+                message: "Result!",
+                code: 200
+            });
+        } catch (error: any) {
+            return AppResponse.sendErrors({
+                res,
+                data: null,
+                message: error.message,
+                code: 500
+            });
+        }
     }
 
 }
