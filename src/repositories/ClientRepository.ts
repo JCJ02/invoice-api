@@ -62,7 +62,8 @@ class ClientRepository {
                 deletedAt: true,
                 invoices: {
                     where: {
-                        deletedAt: null
+                        deletedAt: null,
+                        isDraft: false
                     }
                 }
             }
@@ -372,6 +373,32 @@ class ClientRepository {
         });
 
         return editInvoice;
+
+    }
+
+    // UPDATE DRAFT INVOICE METHOD
+    async updateDraftInvoice(id: number, data: invoiceType) {
+
+        const editDraftInvoice = await prisma.invoices.update({
+            where: {
+                id: id,
+                deletedAt: null,
+                isDraft: true
+            },
+            data: {
+                description: data.description,
+                rate: data.rate,
+                quantity: data.quantity,
+                lineTotal: data.lineTotal,
+                dueDate: data.dueDate,
+                totalOutstanding: data.totalOutstanding,
+                notes: data.notes,
+                terms: data.terms,
+                isDraft: true
+            }
+        });
+
+        return editDraftInvoice;
 
     }
 

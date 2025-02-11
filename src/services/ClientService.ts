@@ -289,6 +289,43 @@ class ClientService {
 
     }
 
+    // UPDATE DRAFT INVOICE METHOD
+    async updateDraftInvoice(id: number, data: invoiceType) {
+
+        const invoice = await this.clientRepository.retrieve(id);
+
+        if (!invoice) {
+            return null;
+        }
+
+        const clientId = invoice.clientId;
+
+        if(!clientId) {
+            return null;
+        }
+
+        const existingInvoices = await this.clientRepository.getAllLineTotal(clientId);
+        const existingTotalOutstanding = existingInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
+
+        const newLineTotal = (data.rate || 0) * (data.quantity || 0);
+        const newTotalOutstanding = existingTotalOutstanding - Number(invoice.lineTotal || 0) + newLineTotal;
+
+        const invoiceData = {
+            ...data,
+            lineTotal: newLineTotal,
+            totalOutstanding: newTotalOutstanding
+        }
+
+        const editedDraftInvoice = await this.clientRepository.updateDraftInvoice(invoice.id, invoiceData);
+        const updatedDraftInvoices = await this.clientRepository.updateManyDraftTotalOutstanding(clientId, newTotalOutstanding);
+
+        return {
+            editedDraftInvoice,
+            updatedDraftInvoices
+        }
+
+    }
+
     // DELETE INVOICE METHOD
     async deleteInvoice(id: number, data: invoiceType) {
 

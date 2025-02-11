@@ -19,6 +19,7 @@ class ClientController {
         this.delete = this.delete.bind(this);
         this.list = this.list.bind(this);
         this.updateInvoice = this.updateInvoice.bind(this);
+        this.updateDrafttInvoice = this.updateDrafttInvoice.bind(this);
         this.deleteInvoice = this.deleteInvoice.bind(this);
         this.get = this.get.bind(this);
         this.getInvoice = this.getInvoice.bind(this);
@@ -353,6 +354,55 @@ class ClientController {
                     return AppResponse.sendSuccessful({
                         res,
                         data: isInvoiceUpdated,
+                        message: "Successfully Updated!",
+                        code: 201
+                    });
+                }
+
+            }
+
+        } catch (error: any) {
+            return AppResponse.sendErrors({
+                res,
+                data: null,
+                message: error.message,
+                code: 500
+            });
+        }
+
+    }
+
+    // UPDATE INVOICE METHOD
+    async updateDrafttInvoice(req: Request, res: Response) {
+
+        try {
+
+            const invoiceId = Number(req.params.id);
+
+            const validateInvoiceData = updateInvoiceSchema.safeParse(req.body);
+
+            if (validateInvoiceData.error) {
+                return AppResponse.sendErrors({
+                    res,
+                    data: null,
+                    message: validateInvoiceData.error.errors[0].message,
+                    code: 403
+                });
+            } else {
+
+                const isDraftInvoiceUpdated = await this.clientService.updateDraftInvoice(invoiceId, validateInvoiceData.data);
+
+                if (!isDraftInvoiceUpdated) {
+                    return AppResponse.sendErrors({
+                        res,
+                        data: null,
+                        message: "Failed To Update!",
+                        code: 403
+                    });
+                } else {
+                    return AppResponse.sendSuccessful({
+                        res,
+                        data: isDraftInvoiceUpdated,
                         message: "Successfully Updated!",
                         code: 201
                     });

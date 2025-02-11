@@ -896,6 +896,7 @@ clientRoute.post("/draft-invoices/:id", authMiddleware, clientController.draftMa
  */
 
 clientRoute.put("/update-invoice/:id", authMiddleware, clientController.updateInvoice);
+clientRoute.put("/update-draft-invoice/:id", authMiddleware, clientController.updateDrafttInvoice);
 
 /**
  * @swagger
