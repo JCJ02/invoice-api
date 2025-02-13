@@ -368,7 +368,8 @@ class ClientRepository {
                 dueDate: data.dueDate,
                 totalOutstanding: data.totalOutstanding,
                 notes: data.notes,
-                terms: data.terms
+                terms: data.terms,
+                isDraft: false
             }
         });
 

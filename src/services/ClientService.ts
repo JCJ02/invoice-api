@@ -196,7 +196,7 @@ class ClientService {
         // STEP 1: GET ALL LINE TOTAL OF SELECTED CLIENT IF THERE IS
         // const clientInvoices = await this.clientRepository.getAllLineTotal(id);
         // const existingTotalOutstanding = clientInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
-        const clientInvoices = await this.clientRepository.getAllLineTotal(id, false);
+        const clientInvoices = await this.clientRepository.getAllLineTotal(id, true);
         const existingTotalOutstanding = clientInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
 
         const lastInvoiceNumber = await this.clientRepository.validateInvoiceNumber();
