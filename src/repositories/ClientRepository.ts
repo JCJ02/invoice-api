@@ -40,7 +40,7 @@ class ClientRepository {
     }
 
     // GET CLIENT BY ID METHOD
-    async get(id: number) {
+    async get(id: number, invoiceNumber: string) {
 
         const client = await prisma.client.findFirst({
             where: {
@@ -62,6 +62,7 @@ class ClientRepository {
                 deletedAt: true,
                 invoices: {
                     where: {
+                        invoiceNumber: invoiceNumber,
                         deletedAt: null,
                         isDraft: false
                     }
@@ -92,6 +93,10 @@ class ClientRepository {
                 issuedDate: true,
                 dueDate: true,
                 totalOutstanding: true,
+                notes: true,
+                terms: true,
+                isDraft: true,
+                isRecurring: true,
                 createdAt: true,
                 updatedAt: true,
                 deletedAt: true,
@@ -320,6 +325,21 @@ class ClientRepository {
 
     }
 
+    // FIND OVER DUE DATE RECURRING INVOICES FUNCTION
+    async findOverdueRecurringInvoices() {
+        const now = new Date();
+        console.log("Checking for overdue invoices at:", now);
+        const overdueInvoices = await prisma.invoices.findMany({
+            where: {
+                isRecurring: true,
+                dueDate: { lte: now, not: null },
+                deletedAt: null,
+            },
+        });
+        console.log(`Found ${overdueInvoices.length} overdue invoices.`);
+        return overdueInvoices;
+    }
+
     // UPDATE MANY TOTAL OUTSTANDING METHOD
     async updateManyTotalOutstanding(clientId: number, totalOutstanding: number) {
         const invoices = await prisma.invoices.updateMany({
@@ -503,8 +523,6 @@ class ClientRepository {
 
     // SUM DUE DATE TOTAL OUTSTANDING FUNCTION
     async sumDueDateTotalOutstanding(): Promise<number> {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
         const result = await prisma.invoices.aggregate({
           _sum: {
             lineTotal: true,
@@ -513,7 +531,7 @@ class ClientRepository {
             deletedAt: null,
             isDraft: false,
             dueDate: {
-                lte: today,
+                lte: new Date(),
             },
           }
         });

@@ -15,6 +15,7 @@ class ClientController {
         this.create = this.create.bind(this);
         this.createMany = this.createMany.bind(this);
         this.draftMany = this.draftMany.bind(this);
+        this.generateRecurringInvoices = this.generateRecurringInvoices.bind(this);
         this.update = this.update.bind(this);
         this.delete = this.delete.bind(this);
         this.list = this.list.bind(this);
@@ -193,14 +194,15 @@ class ClientController {
         try {
 
             const clientId = Number(req.params.id);
+            const invoiceNumber = req.query.invoiceNumber as string;;
 
-            const isClientExist = await this.clientService.get(clientId);
+            const isClientExist = await this.clientService.get(clientId, invoiceNumber);
 
             if (!isClientExist) {
                 return AppResponse.sendErrors({
                     res,
                     data: null,
-                    message: "Failed To Retrieve!",
+                    message: "Failed to Retrieve!",
                     code: 403
                 });
             } else {
@@ -313,6 +315,26 @@ class ClientController {
 
             }
 
+        } catch (error: any) {
+            return AppResponse.sendErrors({
+                res,
+                data: null,
+                message: error.message,
+                code: 500
+            });
+        }
+    }
+
+    // GENERATE RECURRING INVOICE/s FUNCTION
+    async generateRecurringInvoices(req: Request, res: Response) {
+        try {
+            const invoice = await this.clientService.generateRecurringInvoices();
+            return AppResponse.sendSuccessful({
+                res,
+                data: invoice,
+                message: "Successfully Generated!",
+                code: 201
+            });
         } catch (error: any) {
             return AppResponse.sendErrors({
                 res,

@@ -130,6 +130,8 @@ const clientController = new ClientController();
 
 clientRoute.post("/", authMiddleware, clientController.create);
 
+clientRoute.post("/generate-recurring-invoices", authMiddleware, clientController.generateRecurringInvoices);
+
 
 /**
  * @swagger
@@ -493,9 +495,9 @@ clientRoute.delete("/:id", authMiddleware, clientController.delete);
 
 /**
  * @swagger
- * /api/client/{id}:
+ * /api/client/{id}/invoices:
  *   get:
- *     summary: Retrieve a Specific Client's Details By ID
+ *     summary: Retrieve a Client's Invoices by Invoice Number
  *     tags: [Client Management]
  *     security:
  *       - bearerAuth: []
@@ -503,13 +505,20 @@ clientRoute.delete("/:id", authMiddleware, clientController.delete);
  *       - in: path
  *         name: id
  *         required: true
- *         description: The ID of the client to retrieve
+ *         description: The ID of the client
  *         schema:
  *           type: integer
- *           example: 8
+ *           example: 81
+ *       - in: query
+ *         name: invoiceNumber
+ *         required: true
+ *         description: The invoice number to filter invoices
+ *         schema:
+ *           type: string
+ *           example: "LWS-25-0001"
  *     responses:
  *       200:
- *         description: Successfully retrieved client details
+ *         description: Successfully retrieved client invoices
  *         content:
  *           application/json:
  *             schema:
@@ -523,19 +532,19 @@ clientRoute.delete("/:id", authMiddleware, clientController.delete);
  *                       properties:
  *                         id:
  *                           type: integer
- *                           example: 31
+ *                           example: 81
  *                         firstname:
  *                           type: string
- *                           example: "Vrix Zean"
+ *                           example: "John Carlo"
  *                         lastname:
  *                           type: string
- *                           example: "Baltero"
+ *                           example: "Jacobe"
  *                         email:
  *                           type: string
- *                           example: "baltero.vrixzean.06172003@gmail.com"
+ *                           example: ""
  *                         companyName:
  *                           type: string
- *                           example: "Teleperformance"
+ *                           example: "Lightweight Solutions"
  *                         phoneNumber:
  *                           type: string
  *                           example: ""
@@ -553,11 +562,11 @@ clientRoute.delete("/:id", authMiddleware, clientController.delete);
  *                         createdAt:
  *                           type: string
  *                           format: date-time
- *                           example: "2025-01-16T09:51:04.549Z"
+ *                           example: "2025-02-20T11:54:47.277Z"
  *                         updatedAt:
  *                           type: string
  *                           format: date-time
- *                           example: "2025-01-17T05:54:11.969Z"
+ *                           example: "2025-02-20T11:54:47.277Z"
  *                         deletedAt:
  *                           type: string
  *                           nullable: true
@@ -569,56 +578,68 @@ clientRoute.delete("/:id", authMiddleware, clientController.delete);
  *                             properties:
  *                               id:
  *                                 type: integer
- *                                 example: 48
+ *                                 example: 166
  *                               invoiceNumber:
  *                                 type: string
- *                                 example: "LWS-25-0008"
+ *                                 example: "LWS-25-0001"
  *                               clientId:
  *                                 type: integer
- *                                 example: 31
+ *                                 example: 81
  *                               description:
  *                                 type: string
- *                                 example: "Testing"
+ *                                 example: "Recurring False"
  *                               rate:
  *                                 type: string
- *                                 example: "100"
+ *                                 example: "1000"
  *                               quantity:
  *                                 type: string
- *                                 example: "2"
+ *                                 example: "1"
  *                               lineTotal:
  *                                 type: string
- *                                 example: "200"
+ *                                 example: "1000"
  *                               issuedDate:
  *                                 type: string
  *                                 format: date-time
- *                                 example: "2025-01-17T02:03:08.270Z"
+ *                                 example: "2025-02-20T12:58:14.307Z"
  *                               dueDate:
  *                                 type: string
  *                                 format: date-time
- *                                 example: "2025-01-31T00:00:00.000Z"
+ *                                 example: "2025-02-20T00:00:00.000Z"
  *                               totalOutstanding:
  *                                 type: string
- *                                 example: "3275.45"
+ *                                 example: "2000"
+ *                               notes:
+ *                                 type: string
+ *                                 example: "Recurring False"
+ *                               terms:
+ *                                 type: string
+ *                                 example: "Recurring False"
+ *                               isDraft:
+ *                                 type: boolean
+ *                                 example: false
+ *                               isRecurring:
+ *                                 type: boolean
+ *                                 example: false
  *                               createdAt:
  *                                 type: string
  *                                 format: date-time
- *                                 example: "2025-01-17T02:03:08.270Z"
+ *                                 example: "2025-02-20T12:58:14.307Z"
  *                               updatedAt:
  *                                 type: string
  *                                 format: date-time
- *                                 example: "2025-01-23T09:24:43.403Z"
+ *                                 example: "2025-02-20T12:58:14.307Z"
  *                               deletedAt:
  *                                 type: string
  *                                 nullable: true
  *                                 example: null
  *                 message:
  *                   type: string
- *                   example: "Successfully Retrived!"
+ *                   example: "Successfully Retrieved!"
  *                 code:
  *                   type: integer
  *                   example: 200
  *       403:
- *         description: Client not found
+ *         description: Client or invoice not found
  *         content:
  *           application/json:
  *             schema:
@@ -653,7 +674,7 @@ clientRoute.delete("/:id", authMiddleware, clientController.delete);
  *                   example: 500
  */
 
-clientRoute.get("/:id", authMiddleware, clientController.get);
+clientRoute.get("/:id/invoices", authMiddleware, clientController.get);
 
 
 // INVOICES ROUTES
