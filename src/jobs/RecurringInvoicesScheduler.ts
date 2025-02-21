@@ -4,7 +4,7 @@ import ClientService from '../services/ClientService';
 //INITIALIZE DEPENDECIES APPROPRIATELY
 const clientService = new ClientService();
 
-// RUN EVERY DUE DATE OF THE INVOICE/s
+// RUNS AT 12:00 AM (MIDNIGHT) UTC EVERY DAY.
 cron.schedule("0 0 * * *", async () => {
     console.log("Running Daily Invoice Generation...");
     await clientService.generateRecurringInvoices();
