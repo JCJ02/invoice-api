@@ -272,7 +272,7 @@ class ClientService {
             try {
                 const clientId = invoice.clientId;
                 if (!clientId || !invoice.dueDate || !invoice.issuedDate) {
-                    console.log(`Skipping invoice ${invoice.id} due to missing clientId, dueDate, or issuedDate.`);
+                    console.log(`Skipping Invoice ${invoice.id} Due to Missing Client ID, Due Date, or Issued Date.`);
                     continue;
                 }
     
