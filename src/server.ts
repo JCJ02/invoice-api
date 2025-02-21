@@ -3,6 +3,11 @@ import dotenv from "dotenv";
 import cors from "cors";
 import routes from "./routes";
 import swagger from "./utils/swagger";
+// import cron from "node-cron";
+// import ClientService from "./services/ClientService";
+
+// const clientService = new ClientService();
+import "../src/jobs/RecurringInvoicesScheduler";
 
 const app = express();
 app.use(express.json());
@@ -16,6 +21,11 @@ swagger(app);
 app.get("/", (req, res) => {
     return res.redirect("/docs");
 });
+
+// cron.schedule("0 0 * * *", async () => {
+//     console.log("Running daily invoice generation...");
+//     await clientService.generateRecurringInvoices();
+// });
 
 const port = process.env.PORT;
 
