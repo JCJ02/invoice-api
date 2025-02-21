@@ -328,7 +328,7 @@ class ClientRepository {
     // FIND OVER DUE DATE RECURRING INVOICES FUNCTION
     async findOverdueRecurringInvoices() {
         const now = new Date();
-        console.log("Checking for overdue invoices at:", now);
+        // console.log("Checking for Overdue Invoice/s at:", now);
         const overdueInvoices = await prisma.invoices.findMany({
             where: {
                 isRecurring: true,
@@ -336,7 +336,7 @@ class ClientRepository {
                 deletedAt: null,
             },
         });
-        console.log(`Found ${overdueInvoices.length} overdue invoices.`);
+        // console.log(`Found ${overdueInvoices.length} Overdue Invoice/s.`);
         return overdueInvoices;
     }
 
