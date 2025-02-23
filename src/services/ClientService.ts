@@ -168,7 +168,7 @@ class ClientService {
         const newTotalOutstanding = createInvoices.reduce((sum: number, invoice: any) => {
             return sum + Number(invoice.lineTotal || 0);
         }, 0);
-        
+
         const totalOutstanding = existingTotalOutstanding + newTotalOutstanding;
 
         // STEP 4: UPDATE ALL THE TOTAL OUTSTANDING
@@ -242,7 +242,7 @@ class ClientService {
         const newTotalOutstanding = draftInvoices.reduce((sum: number, invoice: any) => {
             return sum + Number(invoice.lineTotal || 0);
         }, 0);
-        
+
         const totalOutstanding = existingTotalOutstanding + newTotalOutstanding;
 
         // STEP 4: UPDATE ALL THE TOTAL OUTSTANDING
@@ -267,7 +267,7 @@ class ClientService {
     // GENERATE RECURRING INVOICE/s FUNCTION
     async generateRecurringInvoices() {
         const overdueInvoices = await this.clientRepository.findOverdueRecurringInvoices();
-    
+
         for (const invoice of overdueInvoices) {
             try {
                 const clientId = invoice.clientId;
@@ -275,25 +275,25 @@ class ClientService {
                     console.log(`Skipping Invoice ${invoice.id} Due to Missing Client ID, Due Date, or Issued Date.`);
                     continue;
                 }
-    
+
                 // CALCULATE NEW DATES
                 const newIssuedDate = new Date();
                 const newDueDate = new Date(newIssuedDate);
                 newDueDate.setMonth(newDueDate.getMonth() + 1); // ADD ONE MONTH
 
-    
+
                 // GENERATE INVOICE NUMBER
                 const lastInvoiceNumber = await this.clientRepository.validateInvoiceNumber();
                 const currentYear = new Date().getFullYear().toString().slice(-2);
                 let baseInvoiceNumber: string;
-    
+
                 if (lastInvoiceNumber) {
                     const lastNumber = parseInt(lastInvoiceNumber.invoiceNumber.split("-")[2], 10) + 1;
                     baseInvoiceNumber = `LWS-${currentYear}-${lastNumber.toString().padStart(4, "0")}`;
                 } else {
                     baseInvoiceNumber = `LWS-${currentYear}-0001`;
                 }
-    
+
                 // CALCULATE LINE TOTAL AND TOTAL OUTSTANDING
                 const lineTotal = Number(invoice.rate || 0) * Number(invoice.quantity || 0);
                 const clientInvoices = await this.clientRepository.getAllLineTotal(clientId, false);
@@ -302,7 +302,7 @@ class ClientService {
 
                 // UPDATE EXISTING INVOICES' TOTAL OUTSTANDING
                 await this.clientRepository.updateManyTotalOutstanding(clientId, totalOutstanding);
-    
+
                 // CREATE NEW INVOICE OBJECT
                 const newInvoice = {
                     invoiceNumber: baseInvoiceNumber,
@@ -319,7 +319,7 @@ class ClientService {
                     isDraft: false,
                     isRecurring: true
                 };
-    
+
                 // CREATE NEW INVOICE
                 const result = await this.clientRepository.createMany(clientId, [newInvoice]);
                 return result;
@@ -327,7 +327,7 @@ class ClientService {
                 console.error(`Error Processing Invoice ${invoice.id}:`, error);
             }
         }
-    }    
+    }
 
 
     // UPDATE INVOICE METHOD
@@ -341,7 +341,7 @@ class ClientService {
 
         const clientId = invoice.clientId;
 
-        if(!clientId) {
+        if (!clientId) {
             return null;
         }
 
@@ -378,7 +378,7 @@ class ClientService {
 
         const clientId = invoice.clientId;
 
-        if(!clientId) {
+        if (!clientId) {
             return null;
         }
 

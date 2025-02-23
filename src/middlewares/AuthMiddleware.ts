@@ -37,7 +37,7 @@ const authMiddleware = async (req: authMiddlewareRequest, res: Response, next: N
                     message: "Admin Not Found!",
                     code: 403
                 });
-            } 
+            }
 
         } else {
             return AppResponse.sendErrors({

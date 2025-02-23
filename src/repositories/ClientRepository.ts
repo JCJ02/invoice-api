@@ -57,7 +57,7 @@ class ClientRepository {
                 businessPhone: true,
                 mobilePhone: true,
                 address: true,
-                createdAt:  true,
+                createdAt: true,
                 updatedAt: true,
                 deletedAt: true,
                 invoices: {
@@ -137,7 +137,7 @@ class ClientRepository {
                 isDraft: true
             }
         });
-    
+
         return invoices;
     }
 
@@ -197,8 +197,8 @@ class ClientRepository {
             },
             include: {
                 invoices: {
-                    where: { 
-                        deletedAt: null,                
+                    where: {
+                        deletedAt: null,
                         OR: [
                             { invoiceNumber: { contains: query, mode: "insensitive" } },
                             { description: { contains: query, mode: "insensitive" } },
@@ -494,48 +494,48 @@ class ClientRepository {
     // SUM TOTAL OUTSTANDING FUNCTION
     async sumTotalOutstanding(): Promise<number> {
         const result = await prisma.invoices.aggregate({
-          _sum: {
-            lineTotal: true,
-          },
-          where: {
-            deletedAt: null,
-            isDraft: false
-          }
+            _sum: {
+                lineTotal: true,
+            },
+            where: {
+                deletedAt: null,
+                isDraft: false
+            }
         });
-    
+
         return result._sum.lineTotal?.toNumber() || 0;
     }
 
     // SUM TOTAL OUTSTANDING FUNCTION
     async sumDraftTotalOutstanding(): Promise<number> {
         const result = await prisma.invoices.aggregate({
-          _sum: {
-            lineTotal: true,
-          },
-          where: {
-            deletedAt: null,
-            isDraft: true
-          }
+            _sum: {
+                lineTotal: true,
+            },
+            where: {
+                deletedAt: null,
+                isDraft: true
+            }
         });
-    
+
         return result._sum.lineTotal?.toNumber() || 0;
     }
 
     // SUM DUE DATE TOTAL OUTSTANDING FUNCTION
     async sumDueDateTotalOutstanding(): Promise<number> {
         const result = await prisma.invoices.aggregate({
-          _sum: {
-            lineTotal: true,
-          },
-          where: {
-            deletedAt: null,
-            isDraft: false,
-            dueDate: {
-                lte: new Date(),
+            _sum: {
+                lineTotal: true,
             },
-          }
+            where: {
+                deletedAt: null,
+                isDraft: false,
+                dueDate: {
+                    lte: new Date(),
+                },
+            }
         });
-    
+
         return result._sum.lineTotal?.toNumber() || 0;
     }
 
