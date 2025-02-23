@@ -4,9 +4,9 @@ const createInvoicesSchema = z.object({
     description: z.string({
         required_error: "Description is Required!"
     })
-    .min(3, "Description Must Be At Least 3 Characters Long!")
-    .max(255, "Description Must Not Exceed 255 Characters Long!"),
-    
+        .min(3, "Description Must Be At Least 3 Characters Long!")
+        .max(255, "Description Must Not Exceed 255 Characters Long!"),
+
     rate: z.preprocess(
         (value) => (value === null ? undefined : Number(value)),
         z.number({
@@ -17,7 +17,7 @@ const createInvoicesSchema = z.object({
     ),
 
     quantity: z.preprocess(
-        (val) => (val === null ? undefined : Number(val)), 
+        (val) => (val === null ? undefined : Number(val)),
         z.number({
             required_error: "Quantity is Required!"
         })
@@ -36,11 +36,11 @@ const createInvoicesArraySchema = z.array(createInvoicesSchema);
 
 const updateInvoiceSchema = z.object({
     description: z.string()
-    .min(3, "Description Must Be At Least 3 Characters Long!")
-    .max(255, "Description Must Not Exceed 255 Characters Long!"),
-    
+        .min(3, "Description Must Be At Least 3 Characters Long!")
+        .max(255, "Description Must Not Exceed 255 Characters Long!"),
+
     rate: z.preprocess(
-        (value) => (value === null ? undefined : Number(value)), 
+        (value) => (value === null ? undefined : Number(value)),
         z.number({
             required_error: "Rate is required!"
         }).refine((value) => {
@@ -49,7 +49,7 @@ const updateInvoiceSchema = z.object({
     ),
 
     quantity: z.preprocess(
-        (value) => (value === null ? undefined : Number(value)), 
+        (value) => (value === null ? undefined : Number(value)),
         z.number({
             required_error: "Quantity is required!"
         })
