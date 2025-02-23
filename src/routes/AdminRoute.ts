@@ -1,6 +1,6 @@
 import express from "express";
 import AdminController from "../controllers/AdminController";
-import authMiddleware from "../middleware/AuthMiddleware";
+import authMiddleware from "../middlewares/AuthMiddleware";
 
 const adminRoute = express.Router();
 const adminController = new AdminController();
@@ -15,7 +15,7 @@ adminRoute.post("/", adminController.create);
  * /api/admin/authenticate:
  *   post:
  *     summary: Admin - Authentication
- *     tags: [Admin]
+ *     tags: [Admin - Authentication]
  *     requestBody:
  *       required: true
  *       content:

@@ -1,5 +1,5 @@
 import express from "express";
-import authMiddleware from "../middleware/AuthMiddleware";
+import authMiddleware from "../middlewares/AuthMiddleware";
 import ClientController from "../controllers/ClientController";
 
 const clientRoute = express.Router();
@@ -129,6 +129,167 @@ const clientController = new ClientController();
  */
 
 clientRoute.post("/", authMiddleware, clientController.create);
+
+clientRoute.post("/generate-recurring-invoices", authMiddleware, clientController.generateRecurringInvoices);
+
+
+/**
+ * @swagger
+ * /api/client/:
+ *   get:
+ *     summary: Retrieve a List of Clients and their Associated Invoices with Search and Pagination Functionality
+ *     tags: [Client Management]
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         description: Search query for filtering invoices or clients by company name, invoice number, or description
+ *         required: false
+ *         schema:
+ *           type: string
+ *           example: "LWS-24-0004"
+ *       - in: query
+ *         name: page
+ *         description: The page number for pagination
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *       - in: query
+ *         name: limit
+ *         description: The number of records per page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           example: 5
+ *     responses:
+ *       200:
+ *         description: Successfully Retrieved the List of Invoices
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     clients:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                             example: 8
+ *                           firstname:
+ *                             type: string
+ *                             example: "Juan"
+ *                           lastname:
+ *                             type: string
+ *                             example: "Dela Cruz"
+ *                           email:
+ *                             type: string
+ *                             example: "juandelacruz@example.com"
+ *                           companyName:
+ *                             type: string
+ *                             example: "Lightweight Solutions"
+ *                           phoneNumber:
+ *                             type: string
+ *                             example: "093403950493"
+ *                           businessPhone:
+ *                             type: string
+ *                             example: "(206) 709-3400"
+ *                           mobilePhone:
+ *                             type: string
+ *                             example: "093403950493"
+ *                           address: 
+ *                             type: string
+ *                             example: "Quezon City, Philippines"
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2025-01-22T02:05:58.958Z"
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2025-01-22T02:05:58.958Z"
+ *                           deletedAt:
+ *                             type: string
+ *                             nullable: true
+ *                             example: null
+ *                           invoices:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 id: 
+ *                                   type: integer
+ *                                   example: 21
+ *                                 invoiceNumber:
+ *                                   type: string
+ *                                   example: "LWS-24-0004"
+ *                                 clientId: 
+ *                                   type: integer
+ *                                   example: 8
+ *                                 description:
+ *                                   type: string
+ *                                   example: "Website Development"
+ *                                 rate:
+ *                                   type: string
+ *                                   example: "240"
+ *                                 quantity:
+ *                                   type: string
+ *                                   example: "15"
+ *                                 lineTotal:
+ *                                   type: string
+ *                                   example: "3600"
+ *                                 issuedDate:
+ *                                   type: string
+ *                                   format: date-time
+ *                                   example: "2024-11-25T08:49:49.131Z"
+ *                                 dueDate:
+ *                                   type: string
+ *                                   format: date-time
+ *                                   example: "2024-12-31T00:00:00.000Z"
+ *                                 totalOutstanding:
+ *                                   type: string
+ *                                   example: "6021000"
+ *                                 createdAt:
+ *                                   type: string
+ *                                   format: date-time
+ *                                   example: "2025-01-22T02:05:58.958Z"
+ *                                 updatedAt:
+ *                                   type: string
+ *                                   format: date-time
+ *                                   example: "2025-01-22T02:05:58.958Z"
+ *                                 deletedAt:
+ *                                   type: string
+ *                                   nullable: true
+ *                                   example: null
+ *                     totalClients:
+ *                       type: integer
+ *                       example: 3
+ *                 message:
+ *                   type: string
+ *                   example: "Result!"
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "An Unexpected Error Occurred."
+ *                 code:
+ *                   type: integer
+ *                   example: 500
+ */
+
+clientRoute.get("/", authMiddleware, clientController.list);
 
 
 /**
@@ -334,123 +495,9 @@ clientRoute.delete("/:id", authMiddleware, clientController.delete);
 
 /**
  * @swagger
- * /api/client:
+ * /api/client/{id}/invoices:
  *   get:
- *     summary: Retrieve a List of Clients w/Search and Pagination
- *     tags: [Client Management]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: query
- *         description: Search keyword to filter clients by fields such as firstname, lastname, companyName, email, phoneNumber, etc.
- *         schema:
- *           type: string
- *           example: "Lightweight"
- *       - in: query
- *         name: page
- *         description: The page number for pagination
- *         schema:
- *           type: integer
- *           example: 1
- *       - in: query
- *         name: limit
- *         description: Number of clients to retrieve per page
- *         schema:
- *           type: integer
- *           example: 5
- *     responses:
- *       200:
- *         description: A list of clients
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   type: object
- *                   properties:
- *                     clients:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: integer
- *                             example: 8
- *                           firstname:
- *                             type: string
- *                             example: "Juan"
- *                           lastname:
- *                             type: string
- *                             example: "Dela Cruz"
- *                           email:
- *                             type: string
- *                             example: "juandelacruz@example.com"
- *                           companyName:
- *                             type: string
- *                             example: "Lightweight Solutions"
- *                           phoneNumber:
- *                             type: string
- *                             example: "09485738475"
- *                           businessPhone:
- *                             type: string
- *                             nullable: true
- *                             example: "09586495435"
- *                           mobilePhone:
- *                             type: string
- *                             nullable: true
- *                             example: ""
- *                           address:
- *                             type: string
- *                             example: "Quezon City"
- *                           createdAt:
- *                             type: string
- *                             format: date-time
- *                             example: "2024-11-25T06:33:34.089Z"
- *                           updatedAt:
- *                             type: string
- *                             format: date-time
- *                             example: "2024-11-25T07:29:38.820Z"
- *                           deletedAt:
- *                             type: string
- *                             nullable: true
- *                             example: null
- *                     totalClients:
- *                       type: integer
- *                       example: 3
- *                 message:
- *                   type: string
- *                   example: "Result!"
- *                 code:
- *                   type: integer
- *                   example: 200
- *       500:
- *         description: Internal Server Error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   type: object
- *                   nullable: true
- *                   example: null
- *                 message:
- *                   type: string
- *                   example: "An Unexpected Error Occurred."
- *                 code:
- *                   type: integer
- *                   example: 500
- */
-
-clientRoute.get("/", authMiddleware, clientController.list);
-
-/**
- * @swagger
- * /api/client/{id}:
- *   get:
- *     summary: Retrieve a Specific Client's Details By ID
+ *     summary: Retrieve a Client's Invoices by Invoice Number
  *     tags: [Client Management]
  *     security:
  *       - bearerAuth: []
@@ -458,13 +505,20 @@ clientRoute.get("/", authMiddleware, clientController.list);
  *       - in: path
  *         name: id
  *         required: true
- *         description: The ID of the client to retrieve
+ *         description: The ID of the client
  *         schema:
  *           type: integer
- *           example: 8
+ *           example: 81
+ *       - in: query
+ *         name: invoiceNumber
+ *         required: true
+ *         description: The invoice number to filter invoices
+ *         schema:
+ *           type: string
+ *           example: "LWS-25-0001"
  *     responses:
  *       200:
- *         description: Successfully retrieved client details
+ *         description: Successfully retrieved client invoices
  *         content:
  *           application/json:
  *             schema:
@@ -478,53 +532,114 @@ clientRoute.get("/", authMiddleware, clientController.list);
  *                       properties:
  *                         id:
  *                           type: integer
- *                           example: 8
+ *                           example: 81
  *                         firstname:
  *                           type: string
- *                           example: "Juan"
+ *                           example: "John Carlo"
  *                         lastname:
  *                           type: string
- *                           example: "Dela Cruz"
+ *                           example: "Jacobe"
  *                         email:
  *                           type: string
- *                           example: "juandelacruz@example.com"
+ *                           example: ""
  *                         companyName:
  *                           type: string
  *                           example: "Lightweight Solutions"
  *                         phoneNumber:
  *                           type: string
- *                           example: "09485738475"
+ *                           example: ""
  *                         businessPhone:
  *                           type: string
  *                           nullable: true
- *                           example: "09586495435"
+ *                           example: ""
  *                         mobilePhone:
  *                           type: string
  *                           nullable: true
  *                           example: ""
  *                         address:
  *                           type: string
- *                           example: "Quezon City"
+ *                           example: ""
  *                         createdAt:
  *                           type: string
  *                           format: date-time
- *                           example: "2024-11-25T06:33:34.089Z"
+ *                           example: "2025-02-20T11:54:47.277Z"
  *                         updatedAt:
  *                           type: string
  *                           format: date-time
- *                           example: "2024-11-25T07:29:38.820Z"
+ *                           example: "2025-02-20T11:54:47.277Z"
  *                         deletedAt:
  *                           type: string
  *                           nullable: true
  *                           example: null
+ *                         invoices:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               id:
+ *                                 type: integer
+ *                                 example: 166
+ *                               invoiceNumber:
+ *                                 type: string
+ *                                 example: "LWS-25-0001"
+ *                               clientId:
+ *                                 type: integer
+ *                                 example: 81
+ *                               description:
+ *                                 type: string
+ *                                 example: "Recurring False"
+ *                               rate:
+ *                                 type: string
+ *                                 example: "1000"
+ *                               quantity:
+ *                                 type: string
+ *                                 example: "1"
+ *                               lineTotal:
+ *                                 type: string
+ *                                 example: "1000"
+ *                               issuedDate:
+ *                                 type: string
+ *                                 format: date-time
+ *                                 example: "2025-02-20T12:58:14.307Z"
+ *                               dueDate:
+ *                                 type: string
+ *                                 format: date-time
+ *                                 example: "2025-02-20T00:00:00.000Z"
+ *                               totalOutstanding:
+ *                                 type: string
+ *                                 example: "2000"
+ *                               notes:
+ *                                 type: string
+ *                                 example: "Recurring False"
+ *                               terms:
+ *                                 type: string
+ *                                 example: "Recurring False"
+ *                               isDraft:
+ *                                 type: boolean
+ *                                 example: false
+ *                               isRecurring:
+ *                                 type: boolean
+ *                                 example: false
+ *                               createdAt:
+ *                                 type: string
+ *                                 format: date-time
+ *                                 example: "2025-02-20T12:58:14.307Z"
+ *                               updatedAt:
+ *                                 type: string
+ *                                 format: date-time
+ *                                 example: "2025-02-20T12:58:14.307Z"
+ *                               deletedAt:
+ *                                 type: string
+ *                                 nullable: true
+ *                                 example: null
  *                 message:
  *                   type: string
- *                   example: "Successfully Retrived!"
+ *                   example: "Successfully Retrieved!"
  *                 code:
  *                   type: integer
  *                   example: 200
  *       403:
- *         description: Client not found
+ *         description: Client or invoice not found
  *         content:
  *           application/json:
  *             schema:
@@ -559,17 +674,16 @@ clientRoute.get("/", authMiddleware, clientController.list);
  *                   example: 500
  */
 
-clientRoute.get("/:id", authMiddleware, clientController.get);
+clientRoute.get("/:id/invoices", authMiddleware, clientController.get);
 
 
 // INVOICES ROUTES
-
 /**
  * @swagger
  * /api/client/create-invoices/{id}:
  *   post:
  *     summary: Create Multiple Invoices for a Specific Client By ID
- *     tags: [Client Management - Invoices]
+ *     tags: [Client and Invoice Management]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -666,13 +780,15 @@ clientRoute.get("/:id", authMiddleware, clientController.get);
 
 clientRoute.post("/create-invoices/:id", authMiddleware, clientController.createMany);
 
+clientRoute.post("/draft-invoices/:id", authMiddleware, clientController.draftMany);
+
 
 /**
  * @swagger
  * /api/client/update-invoice/{id}:
  *   put:
  *     summary: Update an existing invoice by Invoice ID
- *     tags: [Client Management - Invoices]
+ *     tags: [Client and Invoice Management]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -801,26 +917,27 @@ clientRoute.post("/create-invoices/:id", authMiddleware, clientController.create
  */
 
 clientRoute.put("/update-invoice/:id", authMiddleware, clientController.updateInvoice);
+clientRoute.put("/update-draft-invoice/:id", authMiddleware, clientController.updateDrafttInvoice);
 
 /**
  * @swagger
  * /api/client/delete-invoice/{id}:
  *   delete:
  *     summary: Delete An Invoice By Invoice ID
- *     tags: [Client Management - Invoices]
+ *     tags: [Client and Invoice Management]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: The ID of the invoice to delete
+ *         description: The ID of the Invoice to Delete
  *         schema:
  *           type: integer
  *           example: 37
  *     responses:
  *       200:
- *         description: Successfully deleted the invoice
+ *         description: Successfully Deleted the Invoice
  *         content:
  *           application/json:
  *             schema:
@@ -837,7 +954,7 @@ clientRoute.put("/update-invoice/:id", authMiddleware, clientController.updateIn
  *                   type: integer
  *                   example: 200
  *       403:
- *         description: Failed to delete the invoice (e.g., invoice not found)
+ *         description: Failed to Delete the Invoice (e.g., Invoice Not Found)
  *         content:
  *           application/json:
  *             schema:
@@ -877,32 +994,128 @@ clientRoute.delete("/delete-invoice/:id", authMiddleware, clientController.delet
 
 /**
  * @swagger
- * /api/client/retrieve/invoice-list/:
+ * /api/client/retrieve/invoice-list/{id}:
  *   get:
- *     summary: Retrieve a List of Invoices w/Search and Pagination
- *     tags: [Client Management - Invoices]
+ *     summary: Retrieve a Specific Invoice Based on Invoice ID
+ *     tags: [Client and Invoice Management]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         description: The ID of the invoice to retrieve
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 36
+ *     responses:
+ *       200:
+ *         description: Successfully Retrieved the Invoice
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     invoice:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                           example: 66
+ *                         invoiceNumber:
+ *                           type: string
+ *                           example: "LWS-25-0017"
+ *                         clientId:
+ *                           type: integer
+ *                           example: 31
+ *                         description:
+ *                           type: string
+ *                           example: "TeST 123"
+ *                         rate:
+ *                           type: string
+ *                           example: "1500.45"
+ *                         quantity:
+ *                           type: string
+ *                           example: "1"
+ *                         lineTotal:
+ *                           type: string
+ *                           example: "1500.45"
+ *                         issuedDate:
+ *                           type: string
+ *                           format: date-time
+ *                           example: "2025-01-23T09:24:43.516Z"
+ *                         dueDate:
+ *                           type: string
+ *                           format: date-time
+ *                           example: "2025-01-31T00:00:00.000Z"
+ *                         totalOutstanding:
+ *                           type: string
+ *                           example: "3275.45"
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                           example: "2025-01-23T09:24:43.516Z"
+ *                         updatedAt:
+ *                           type: string
+ *                           format: date-time
+ *                           example: "2025-01-23T09:24:43.516Z"
+ *                         deletedAt:
+ *                           type: string
+ *                           nullable: true
+ *                           example: null
+ *                 message:
+ *                   type: string
+ *                   example: "Successfully Retrieved!"
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "An Unexpected Error Occurred."
+ *                 code:
+ *                   type: integer
+ *                   example: 500
+ */
+
+clientRoute.get("/retrieve/invoice-list/:id", authMiddleware, clientController.getInvoice);
+
+
+/**
+ * @swagger
+ * /api/client/retrieve/invoice-list:
+ *   get:
+ *     summary: Retrieve a List of Invoices with Search and Pagination
+ *     tags: [Client and Invoice Management]
  *     parameters:
  *       - in: query
  *         name: query
- *         description: Search query for filtering invoices or clients by company name, invoice number, or description
+ *         description: Search keyword for invoice number, description, issued date, or due date
  *         required: false
  *         schema:
  *           type: string
- *           example: "LWS-24-0004"
+ *           example: "LWS-25-0013"
  *       - in: query
  *         name: page
- *         description: The page number for pagination
+ *         description: Page number for pagination
  *         required: false
  *         schema:
  *           type: integer
  *           example: 1
  *       - in: query
  *         name: limit
- *         description: The number of records per page
+ *         description: Number of records per page
  *         required: false
  *         schema:
  *           type: integer
- *           example: 5
+ *           example: 10
  *     responses:
  *       200:
  *         description: Successfully Retrieved the List of Invoices
@@ -914,51 +1127,58 @@ clientRoute.delete("/delete-invoice/:id", authMiddleware, clientController.delet
  *                 data:
  *                   type: object
  *                   properties:
- *                     clients:
+ *                     invoices:
  *                       type: array
  *                       items:
  *                         type: object
  *                         properties:
  *                           id:
  *                             type: integer
- *                             example: 8
- *                           firstname:
+ *                             example: 61
+ *                           invoiceNumber:
  *                             type: string
- *                             example: "Juan"
- *                           lastname:
+ *                             example: "LWS-25-0013"
+ *                           clientId:
+ *                             type: integer
+ *                             example: 19
+ *                           description:
  *                             type: string
- *                             example: "Dela Cruz"
- *                           email:
+ *                             example: "TEST 1234"
+ *                           rate:
  *                             type: string
- *                             example: "juandelacruz@example.com"
- *                           companyName:
+ *                             example: "240"
+ *                           quantity:
  *                             type: string
- *                             example: "Lightweight Solutions"
- *                           invoices:
- *                             type: array
- *                             items:
- *                               type: object
- *                               properties:
- *                                 invoiceNumber:
- *                                   type: string
- *                                   example: "LWS-24-0004"
- *                                 description:
- *                                   type: string
- *                                   example: "Website Development"
- *                                 issuedDate:
- *                                   type: string
- *                                   format: date-time
- *                                   example: "2024-11-25T08:49:49.131Z"
- *                                 dueDate:
- *                                   type: string
- *                                   format: date-time
- *                                   example: "2024-12-31T00:00:00.000Z"
- *                                 totalOutstanding:
- *                                   type: string
- *                                   example: "6021000"
- *                     totalClients:
+ *                             example: "15"
+ *                           lineTotal:
+ *                             type: string
+ *                             example: "3600"
+ *                           issuedDate:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2025-01-22T02:05:58.958Z"
+ *                           dueDate:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2025-01-31T00:00:00.000Z"
+ *                           totalOutstanding:
+ *                             type: string
+ *                             example: "4850"
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2025-01-22T02:05:58.958Z"
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2025-01-22T02:05:58.958Z"
+ *                           deletedAt:
+ *                             type: string
+ *                             nullable: true
+ *                             example: null
+ *                     totalInvoices:
  *                       type: integer
- *                       example: 3
+ *                       example: 20
  *                 message:
  *                   type: string
  *                   example: "Result!"
@@ -983,96 +1203,12 @@ clientRoute.delete("/delete-invoice/:id", authMiddleware, clientController.delet
 clientRoute.get("/retrieve/invoice-list", authMiddleware, clientController.invoiceList);
 
 
-/**
- * @swagger
- * /api/client/retrieve/{id}:
- *   get:
- *     summary: Retrieve a Specific Invoice Based on Invoice ID
- *     tags: [Client Management - Invoices]
- *     parameters:
- *       - in: path
- *         name: id
- *         description: The ID of the invoice to retrieve
- *         required: true
- *         schema:
- *           type: integer
- *           example: 36
- *     responses:
- *       200:
- *         description: Successfully Retrieved the Invoice
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 36
- *                     invoiceNumber:
- *                       type: string
- *                       example: "LWS-24-0004"
- *                     clientId:
- *                       type: integer
- *                       example: 8
- *                     description:
- *                       type: string
- *                       example: "Application Development"
- *                     rate:
- *                       type: string
- *                       example: "5000000"
- *                     quantity:
- *                       type: string
- *                       example: "1"
- *                     lineTotal:
- *                       type: string
- *                       example: "5000000"
- *                     issuedDate:
- *                       type: string
- *                       format: date-time
- *                       example: "2024-11-25T08:49:49.131Z"
- *                     dueDate:
- *                       type: string
- *                       format: date-time
- *                       example: "2024-12-31T00:00:00.000Z"
- *                     totalOutstanding:
- *                       type: string
- *                       example: "6021000"
- *                     createdAt:
- *                       type: string
- *                       format: date-time
- *                       example: "2024-11-25T08:49:49.131Z"
- *                     updatedAt:
- *                       type: string
- *                       format: date-time
- *                       example: "2024-11-25T08:49:49.131Z"
- *                     deletedAt:
- *                       type: string
- *                       nullable: true
- *                       example: null
- *                 message:
- *                   type: string
- *                   example: "Successfully Retrieved!"
- *                 code:
- *                   type: integer
- *                   example: 200
- *       500:
- *         description: Internal Server Error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: "An Unexpected Error Occurred."
- *                 code:
- *                   type: integer
- *                   example: 500
- */
+clientRoute.get("/sum/total-outstanding", authMiddleware, clientController.sumTotalOutstanding);
 
-clientRoute.get("/retrieve/:id", authMiddleware, clientController.getInvoice);
+
+clientRoute.get("/sum/draft-total-outstanding", authMiddleware, clientController.sumDraftTotalOutstanding);
+
+
+clientRoute.get("/sum/due-date-total-outstanding", authMiddleware, clientController.sumDueDateTotalOutstanding);
 
 export default clientRoute;

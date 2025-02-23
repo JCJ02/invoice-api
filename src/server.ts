@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import routes from "./routes";
 import swagger from "./utils/swagger";
+import "../src/jobs/RecurringInvoicesScheduler";
 
 const app = express();
 app.use(express.json());

@@ -1,25 +1,25 @@
-import AdminRepo from "../repo/AdminRepo";
+import AdminRepository from "../repositories/AdminRepository";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/token";
 import { adminType } from "../types/AdminType";
-import prisma from "../utils/client";
-import { sendAccountDetails } from "../utils/SendAdminDetails";
+import prisma from "../utils/prismaClient";
+import { sendAccountDetails } from "../utils/sendAccountDetails";
 import { generatePassword } from "../utils/generatePassword";
 
 class AdminService {
 
-    private adminRepo;
+    private adminRepository;
 
     constructor() {
 
-        this.adminRepo = new AdminRepo();
+        this.adminRepository = new AdminRepository();
 
     }
 
     // CREATE ADMIN METHOD
     async create(data: adminType) {
 
-        const isEmailExist = await this.adminRepo.validateEmail(data.email);
+        const isEmailExist = await this.adminRepository.validateEmail(data.email);
 
         if (isEmailExist) {
             return null;
@@ -35,7 +35,7 @@ class AdminService {
 
             const create = await prisma.$transaction(async (prismaTrasaction) => {
 
-                const newAdmin = await this.adminRepo.create(adminData, prismaTrasaction);
+                const newAdmin = await this.adminRepository.create(adminData, prismaTrasaction);
 
                 try {
 
@@ -66,7 +66,7 @@ class AdminService {
     // SHOW METHOD
     async show(id: number) {
 
-        const isIdExist = await this.adminRepo.show(id);
+        const isIdExist = await this.adminRepository.show(id);
 
         if (!isIdExist) {
             return null;
@@ -79,7 +79,7 @@ class AdminService {
     // AUTHENTICATE OR LOG IN ADMIN METHOD
     async authenticate(data: { email: string, password: string }) {
 
-        const admin = await this.adminRepo.authenticate(data);
+        const admin = await this.adminRepository.authenticate(data);
         // console.log(`Admin: ${admin}`);
         if (!admin) {
             return null;

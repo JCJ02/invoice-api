@@ -15,7 +15,9 @@ type baseInvoiceType = {
     quantity: number,
     lineTotal?: number,
     dueDate: Date,
-    totalOutstanding?: number
+    totalOutstanding?: number,
+    notes?: string | null | undefined;
+    terms?: string | null | undefined;
 }
 
 type clientType = baseClientType & {
