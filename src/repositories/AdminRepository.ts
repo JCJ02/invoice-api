@@ -1,7 +1,7 @@
 import { adminAccountType } from "../types/AdminType";
 import prisma from "../utils/prismaClient";
 
-class AdminRepo {
+class AdminRepository {
 
     // CREATE ADMIN METHOD
     async create(data: adminAccountType, prismaTransaction: any) {
@@ -69,4 +69,4 @@ class AdminRepo {
 
 }
 
-export default AdminRepo;
+export default AdminRepository;
