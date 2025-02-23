@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { JsonWebTokenError } from "jsonwebtoken";
-import AppResponse from "../utils/AppResponse";
+import AppResponse from "../utils/appResponse";
 import AdminService from "../services/AdminService";
 import { authMiddlewareRequest } from "../types/AuthMiddlewareType";
 import { verifyToken } from "../utils/token";
