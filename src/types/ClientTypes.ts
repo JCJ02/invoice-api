@@ -18,6 +18,8 @@ type baseInvoiceType = {
     totalOutstanding?: number,
     notes?: string | null | undefined;
     terms?: string | null | undefined;
+    isDraft?: boolean | null | undefined,
+    isRecurring?: boolean | null | undefined
 }
 
 type clientType = baseClientType & {

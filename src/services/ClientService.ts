@@ -128,8 +128,8 @@ class ClientService {
         // STEP 1: GET ALL LINE TOTAL OF SELECTED CLIENT IF THERE IS
         // const clientInvoices = await this.clientRepository.getAllLineTotal(id);
         // const existingTotalOutstanding = clientInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
-        const clientInvoices = await this.clientRepository.getAllLineTotal(id, false);
-        const existingTotalOutstanding = clientInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
+        // const clientInvoices = await this.clientRepository.getAllLineTotal(id, false);
+        // const existingTotalOutstanding = clientInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
 
         const lastInvoiceNumber = await this.clientRepository.validateInvoiceNumber();
         // console.log(`Last Invoice Number: ${lastInvoiceNumber}`);
@@ -169,10 +169,10 @@ class ClientService {
             return sum + Number(invoice.lineTotal || 0);
         }, 0);
         
-        const totalOutstanding = existingTotalOutstanding + newTotalOutstanding;
+        const totalOutstanding = newTotalOutstanding;
 
         // STEP 4: UPDATE ALL THE TOTAL OUTSTANDING
-        await this.clientRepository.updateManyTotalOutstanding(id, totalOutstanding);
+        // await this.clientRepository.updateManyTotalOutstanding(id, totalOutstanding);
 
         // STEP 5: SAVE THE INVOICES WITH THE CALCULATED LINE TOTAL AND TOTAL OUTSTANDING
         if (createInvoices && createInvoices.length > 0) {
@@ -202,8 +202,8 @@ class ClientService {
         // STEP 1: GET ALL LINE TOTAL OF SELECTED CLIENT IF THERE IS
         // const clientInvoices = await this.clientRepository.getAllLineTotal(id);
         // const existingTotalOutstanding = clientInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
-        const clientInvoices = await this.clientRepository.getAllLineTotal(id, true);
-        const existingTotalOutstanding = clientInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
+        // const clientInvoices = await this.clientRepository.getAllLineTotal(id, true);
+        // const existingTotalOutstanding = clientInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
 
         const lastInvoiceNumber = await this.clientRepository.validateInvoiceNumber();
         // console.log(`Last Invoice Number: ${lastInvoiceNumber}`);
@@ -243,10 +243,10 @@ class ClientService {
             return sum + Number(invoice.lineTotal || 0);
         }, 0);
         
-        const totalOutstanding = existingTotalOutstanding + newTotalOutstanding;
+        const totalOutstanding = newTotalOutstanding;
 
         // STEP 4: UPDATE ALL THE TOTAL OUTSTANDING
-        await this.clientRepository.updateManyDraftTotalOutstanding(id, totalOutstanding);
+        // await this.clientRepository.updateManyDraftTotalOutstanding(id, totalOutstanding);
 
         // STEP 5: SAVE THE INVOICES WITH THE CALCULATED LINE TOTAL AND TOTAL OUTSTANDING
         if (draftInvoices && draftInvoices.length > 0) {
@@ -280,7 +280,6 @@ class ClientService {
                 const newIssuedDate = new Date();
                 const newDueDate = new Date(newIssuedDate);
                 newDueDate.setMonth(newDueDate.getMonth() + 1); // ADD ONE MONTH
-
     
                 // GENERATE INVOICE NUMBER
                 const lastInvoiceNumber = await this.clientRepository.validateInvoiceNumber();
@@ -296,12 +295,12 @@ class ClientService {
     
                 // CALCULATE LINE TOTAL AND TOTAL OUTSTANDING
                 const lineTotal = Number(invoice.rate || 0) * Number(invoice.quantity || 0);
-                const clientInvoices = await this.clientRepository.getAllLineTotal(clientId, false);
-                const existingTotal = clientInvoices.reduce((sum, inv) => sum + Number(inv.lineTotal || 0), 0);
-                const totalOutstanding = existingTotal + lineTotal;
+                // const clientInvoices = await this.clientRepository.getAllLineTotal(clientId, false);
+                // const existingTotal = clientInvoices.reduce((sum, inv) => sum + Number(inv.lineTotal || 0), 0);
+                const totalOutstanding = lineTotal;
 
                 // UPDATE EXISTING INVOICES' TOTAL OUTSTANDING
-                await this.clientRepository.updateManyTotalOutstanding(clientId, totalOutstanding);
+                await this.clientRepository.updateManyTotalOutstanding(clientId, invoice.invoiceNumber, totalOutstanding);
     
                 // CREATE NEW INVOICE OBJECT
                 const newInvoice = {
@@ -345,11 +344,12 @@ class ClientService {
             return null;
         }
 
-        const existingInvoices = await this.clientRepository.getAllLineTotal(clientId);
+        const existingInvoices = await this.clientRepository.getAllLineTotal(clientId, invoice.invoiceNumber);
         const existingTotalOutstanding = existingInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
 
         const newLineTotal = (data.rate || 0) * (data.quantity || 0);
         const newTotalOutstanding = existingTotalOutstanding - Number(invoice.lineTotal || 0) + newLineTotal;
+        // const newTotalOutstanding = newLineTotal
 
         const invoiceData = {
             ...data,
@@ -358,7 +358,7 @@ class ClientService {
         }
 
         const editedInvoice = await this.clientRepository.updateInvoice(invoice.id, invoiceData);
-        const updatedInvoices = await this.clientRepository.updateManyTotalOutstanding(clientId, newTotalOutstanding);
+        const updatedInvoices = await this.clientRepository.updateManyTotalOutstanding(clientId, invoice.invoiceNumber, newTotalOutstanding);
 
         return {
             editedInvoice,
@@ -382,11 +382,12 @@ class ClientService {
             return null;
         }
 
-        const existingInvoices = await this.clientRepository.getAllLineTotal(clientId);
-        const existingTotalOutstanding = existingInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
+        // const existingInvoices = await this.clientRepository.getAllLineTotal(clientId);
+        // const existingTotalOutstanding = existingInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
 
         const newLineTotal = (data.rate || 0) * (data.quantity || 0);
-        const newTotalOutstanding = existingTotalOutstanding - Number(invoice.lineTotal || 0) + newLineTotal;
+        // const newTotalOutstanding = existingTotalOutstanding - Number(invoice.lineTotal || 0) + newLineTotal;
+        const newTotalOutstanding = newLineTotal;
 
         const invoiceData = {
             ...data,
@@ -395,11 +396,11 @@ class ClientService {
         }
 
         const editedDraftInvoice = await this.clientRepository.updateDraftInvoice(invoice.id, invoiceData);
-        const updatedDraftInvoices = await this.clientRepository.updateManyDraftTotalOutstanding(clientId, newTotalOutstanding);
+        // const updatedDraftInvoices = await this.clientRepository.updateManyDraftTotalOutstanding(clientId, newTotalOutstanding);
 
         return {
             editedDraftInvoice,
-            updatedDraftInvoices
+            // updatedDraftInvoices
         }
 
     }
@@ -422,14 +423,14 @@ class ClientService {
         const deletedInvoice = await this.clientRepository.deleteInvoice(invoice.id, data);
 
         // RECALCULATE THE TOTAL OUTSTANDING AFTER DELETION
-        const remainingInvoices = await this.clientRepository.getAllLineTotal(clientId);
+        const remainingInvoices = await this.clientRepository.getAllLineTotal(clientId, invoice.invoiceNumber);
         const updatedTotalOutstanding = remainingInvoices.reduce(
             (sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0),
             0
         );
 
         // UPDATE TOTAL OUTSTANDING FOR ALL REMAINING INVOICES
-        const updatedInvoices = await this.clientRepository.updateManyTotalOutstanding(clientId, updatedTotalOutstanding);
+        const updatedInvoices = await this.clientRepository.updateManyTotalOutstanding(clientId, invoice.invoiceNumber, updatedTotalOutstanding);
 
         return {
             deletedInvoice,
