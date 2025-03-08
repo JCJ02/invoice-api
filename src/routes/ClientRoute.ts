@@ -782,6 +782,7 @@ clientRoute.post("/create-invoices/:id", authMiddleware, clientController.create
 
 clientRoute.post("/draft-invoices/:id", authMiddleware, clientController.draftMany);
 
+clientRoute.put("/update-invoices/:id/invoices", authMiddleware, clientController.updateMany);
 
 /**
  * @swagger

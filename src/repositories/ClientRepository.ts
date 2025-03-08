@@ -5,18 +5,18 @@ class ClientRepository {
     // CREATE CLIENT METHOD
     async create(data: clientType) {
         const newClient = await prisma.$transaction(async (prisma) => {
-        return await prisma.client.create({
-            data: {
-            firstname: data.firstname,
-            lastname: data.lastname,
-            companyName: data.companyName,
-            email: data.email,
-            phoneNumber: data.phoneNumber,
-            businessPhone: data.businessPhone,
-            mobilePhone: data.mobilePhone,
-            address: data.address,
-            },
-        });
+            return await prisma.client.create({
+                data: {
+                firstname: data.firstname,
+                lastname: data.lastname,
+                companyName: data.companyName,
+                email: data.email,
+                phoneNumber: data.phoneNumber,
+                businessPhone: data.businessPhone,
+                mobilePhone: data.mobilePhone,
+                address: data.address,
+                },
+            });
         });
 
         return newClient;
@@ -25,10 +25,10 @@ class ClientRepository {
     // SHOW METHOD
     async show(id: number) {
         const client = await prisma.client.findFirst({
-        where: {
-            id: id,
-            deletedAt: null,
-        },
+            where: {
+                id: id,
+                deletedAt: null,
+            },
         });
 
         return client;
@@ -37,31 +37,31 @@ class ClientRepository {
     // GET CLIENT BY ID METHOD
     async get(id: number, invoiceNumber: string) {
         const client = await prisma.client.findFirst({
-        where: {
-            id: id,
-            deletedAt: null,
-        },
-        select: {
-            id: true,
-            firstname: true,
-            lastname: true,
-            email: true,
-            companyName: true,
-            phoneNumber: true,
-            businessPhone: true,
-            mobilePhone: true,
-            address: true,
-            createdAt: true,
-            updatedAt: true,
-            deletedAt: true,
-            invoices: {
             where: {
-                invoiceNumber: invoiceNumber,
+                id: id,
                 deletedAt: null,
-                isDraft: false,
             },
+            select: {
+                id: true,
+                firstname: true,
+                lastname: true,
+                email: true,
+                companyName: true,
+                phoneNumber: true,
+                businessPhone: true,
+                mobilePhone: true,
+                address: true,
+                createdAt: true,
+                updatedAt: true,
+                deletedAt: true,
+                invoices: {
+                    where: {
+                        invoiceNumber: invoiceNumber,
+                        deletedAt: null,
+                        isDraft: false,
+                    },
+                },
             },
-        },
         });
 
         return client;
@@ -70,29 +70,29 @@ class ClientRepository {
     // RETRIEVE INVOICE ID METHOD
     async retrieve(id: number) {
         const invoice = await prisma.invoices.findFirst({
-        where: {
-            id: id,
-            deletedAt: null,
-        },
-        select: {
-            id: true,
-            invoiceNumber: true,
-            clientId: true,
-            description: true,
-            rate: true,
-            quantity: true,
-            lineTotal: true,
-            issuedDate: true,
-            dueDate: true,
-            totalOutstanding: true,
-            notes: true,
-            terms: true,
-            isDraft: true,
-            isRecurring: true,
-            createdAt: true,
-            updatedAt: true,
-            deletedAt: true,
-        },
+            where: {
+                id: id,
+                deletedAt: null,
+            },
+            select: {
+                id: true,
+                invoiceNumber: true,
+                clientId: true,
+                description: true,
+                rate: true,
+                quantity: true,
+                lineTotal: true,
+                issuedDate: true,
+                dueDate: true,
+                totalOutstanding: true,
+                notes: true,
+                terms: true,
+                isDraft: true,
+                isRecurring: true,
+                createdAt: true,
+                updatedAt: true,
+                deletedAt: true,
+            },
         });
 
         return invoice;
@@ -101,12 +101,12 @@ class ClientRepository {
     // VALIDATE INVOICE NUMBER METHOD
     async validateInvoiceNumber() {
         const isInvoiceNumberExist = await prisma.invoices.findFirst({
-        where: {
-            deletedAt: null,
-        },
-        orderBy: {
-            invoiceNumber: "desc",
-        },
+            where: {
+                deletedAt: null,
+            },
+            orderBy: {
+                invoiceNumber: "desc",
+            },
         });
 
         return isInvoiceNumberExist;
@@ -115,17 +115,17 @@ class ClientRepository {
     // GET ALL LINE TOTAL
     async getAllLineTotal(clientId: number, invoiceNumber: string, isDraft?: boolean) {
         const invoices = await prisma.invoices.findMany({
-        where: {
-            clientId: clientId,
-            invoiceNumber: invoiceNumber,
-            deletedAt: null,
-            ...(typeof isDraft === "boolean" && { isDraft }),
-        },
-        select: {
-            invoiceNumber: true,
-            lineTotal: true,
-            isDraft: true,
-        },
+            where: {
+                clientId: clientId,
+                invoiceNumber: invoiceNumber,
+                deletedAt: null,
+                ...(typeof isDraft === "boolean" && { isDraft }),
+            },
+            select: {
+                invoiceNumber: true,
+                lineTotal: true,
+                isDraft: true,
+            },
         });
 
         return invoices;
@@ -139,19 +139,19 @@ class ClientRepository {
         const invoiceFilters = [];
 
         if (parsedDate) {
-        invoiceFilters.push({ issuedDate: { equals: parsedDate } });
-        invoiceFilters.push({ dueDate: { equals: parsedDate } });
-        invoiceFilters.push({ createdAt: { equals: parsedDate } });
-        invoiceFilters.push({ updatedAt: { equals: parsedDate } });
+            invoiceFilters.push({ issuedDate: { equals: parsedDate } });
+            invoiceFilters.push({ dueDate: { equals: parsedDate } });
+            invoiceFilters.push({ createdAt: { equals: parsedDate } });
+            invoiceFilters.push({ updatedAt: { equals: parsedDate } });
         }
 
         if (parsedNumber !== undefined) {
-        invoiceFilters.push({ id: { equals: parsedNumber } });
-        invoiceFilters.push({ clientId: { equals: parsedNumber } });
-        invoiceFilters.push({ rate: { equals: parsedNumber } });
-        invoiceFilters.push({ quantity: { equals: parsedNumber } });
-        invoiceFilters.push({ lineTotal: { equals: parsedNumber } });
-        invoiceFilters.push({ totalOutstanding: { equals: parsedNumber } });
+            invoiceFilters.push({ id: { equals: parsedNumber } });
+            invoiceFilters.push({ clientId: { equals: parsedNumber } });
+            invoiceFilters.push({ rate: { equals: parsedNumber } });
+            invoiceFilters.push({ quantity: { equals: parsedNumber } });
+            invoiceFilters.push({ lineTotal: { equals: parsedNumber } });
+            invoiceFilters.push({ totalOutstanding: { equals: parsedNumber } });
         }
 
         const clients = await prisma.client.findMany({
@@ -279,46 +279,74 @@ class ClientRepository {
     }
 
     // CREATE INVOICES METHOD
-    async createMany(id: number, data: any[]) {
+    async createMany(clientId: number, data: any[]) {
         const invoiceData = data.map((invoice) => ({
-        ...invoice,
-        clientId: id,
+            ...invoice,
+            clientId: clientId,
         }));
 
         const createManyInvoices = await prisma.invoices.createMany({
-        data: invoiceData,
-        skipDuplicates: true,
+            data: invoiceData,
+            skipDuplicates: true,
         });
 
         return createManyInvoices;
     }
 
     // DRAFT MANY INVOICES METHOD
-    async draftMany(id: number, data: any[]) {
+    async draftMany(clientId: number, data: any[]) {
         const invoiceData = data.map((invoice) => ({
-        ...invoice,
-        clientId: id,
-        isDraft: true,
+            ...invoice,
+            clientId: clientId,
+            isDraft: true,
         }));
 
         const createManyInvoices = await prisma.invoices.createMany({
-        data: invoiceData,
-        skipDuplicates: true,
+            data: invoiceData,
+            skipDuplicates: true,
         });
 
         return createManyInvoices;
     }
+
+    // UPDATE MANY INOICES METHOD
+    async updateMany(clientId: number, invoiceNumber: string, data: any[]) {
+        const updatedInvoices = await Promise.all(
+            data.map((invoice) =>
+                prisma.invoices.updateMany({
+                    where: {
+                        invoiceNumber: invoiceNumber,
+                        clientId: clientId,
+                        deletedAt: null
+                    },
+                    data: {
+                        description: invoice.description,
+                        rate: invoice.rate,
+                        quantity: invoice.quantity,
+                        lineTotal: invoice.lineTotal,
+                        dueDate: invoice.dueDate,
+                        totalOutstanding: invoice.totalOutstanding,
+                        notes: invoice.notes,
+                        terms: invoice.terms,
+                        isRecurring: invoice.isRecurring
+                    },
+                })
+            )
+        );
+    
+        return updatedInvoices;
+    }    
 
     // FIND OVER DUE DATE RECURRING INVOICES FUNCTION
     async findOverdueRecurringInvoices() {
         const now = new Date();
         // console.log("Checking for Overdue Invoice/s at:", now);
         const overdueInvoices = await prisma.invoices.findMany({
-        where: {
-            isRecurring: true,
-            dueDate: { lte: now, not: null },
-            deletedAt: null,
-        },
+            where: {
+                isRecurring: true,
+                dueDate: { lte: now, not: null },
+                deletedAt: null,
+            },
         });
         // console.log(`Found ${overdueInvoices.length} Overdue Invoice/s.`);
         return overdueInvoices;
@@ -327,15 +355,15 @@ class ClientRepository {
     // UPDATE MANY TOTAL OUTSTANDING METHOD
     async updateManyTotalOutstanding(clientId: number, invoiceNumber: string, totalOutstanding: number) {
         const invoices = await prisma.invoices.updateMany({
-        where: {
-            clientId: clientId,
-            invoiceNumber: invoiceNumber,
-            deletedAt: null,
-            isDraft: false,
-        },
-        data: {
-            totalOutstanding: totalOutstanding,
-        },
+            where: {
+                clientId: clientId,
+                invoiceNumber: invoiceNumber,
+                deletedAt: null,
+                isDraft: false,
+            },
+            data: {
+                totalOutstanding: totalOutstanding,
+            },
         });
 
         return invoices;
@@ -347,14 +375,14 @@ class ClientRepository {
         totalOutstanding: number
     ) {
         const invoices = await prisma.invoices.updateMany({
-        where: {
-            clientId: clientId,
-            deletedAt: null,
-            isDraft: true,
-        },
-        data: {
-            totalOutstanding: totalOutstanding,
-        },
+            where: {
+                clientId: clientId,
+                deletedAt: null,
+                isDraft: true,
+            },
+            data: {
+                totalOutstanding: totalOutstanding,
+            },
         });
 
         return invoices;
@@ -363,22 +391,22 @@ class ClientRepository {
     // UPDATE INVOICE METHOD
     async updateInvoice(id: number, data: invoiceType) {
         const editInvoice = await prisma.invoices.update({
-        where: {
-            id: id,
-            deletedAt: null,
-        },
-        data: {
-            description: data.description,
-            rate: data.rate,
-            quantity: data.quantity,
-            lineTotal: data.lineTotal,
-            dueDate: data.dueDate,
-            totalOutstanding: data.totalOutstanding,
-            notes: data.notes,
-            terms: data.terms,
-            isDraft: false,
-            isRecurring: data.isRecurring
-        },
+            where: {
+                id: id,
+                deletedAt: null,
+            },
+            data: {
+                description: data.description,
+                rate: data.rate,
+                quantity: data.quantity,
+                lineTotal: data.lineTotal,
+                dueDate: data.dueDate,
+                totalOutstanding: data.totalOutstanding,
+                notes: data.notes,
+                terms: data.terms,
+                isDraft: false,
+                isRecurring: data.isRecurring
+            },
         });
 
         return editInvoice;
@@ -387,22 +415,22 @@ class ClientRepository {
     // UPDATE DRAFT INVOICE METHOD
     async updateDraftInvoice(id: number, data: invoiceType) {
         const editDraftInvoice = await prisma.invoices.update({
-        where: {
-            id: id,
-            deletedAt: null,
-            isDraft: true,
-        },
-        data: {
-            description: data.description,
-            rate: data.rate,
-            quantity: data.quantity,
-            lineTotal: data.lineTotal,
-            dueDate: data.dueDate,
-            totalOutstanding: data.totalOutstanding,
-            notes: data.notes,
-            terms: data.terms,
-            isDraft: true,
-        },
+            where: {
+                id: id,
+                deletedAt: null,
+                isDraft: true,
+            },
+            data: {
+                description: data.description,
+                rate: data.rate,
+                quantity: data.quantity,
+                lineTotal: data.lineTotal,
+                dueDate: data.dueDate,
+                totalOutstanding: data.totalOutstanding,
+                notes: data.notes,
+                terms: data.terms,
+                isDraft: true,
+            },
         });
 
         return editDraftInvoice;
@@ -411,14 +439,14 @@ class ClientRepository {
     // DELETE INVOICE METHOD
     async deleteInvoice(id: number, data: invoiceType) {
         const removeInvoice = await prisma.invoices.update({
-        where: {
-            id: id,
-            deletedAt: null,
-        },
-        data: {
-            deletedAt: new Date(),
-            totalOutstanding: data.totalOutstanding,
-        },
+            where: {
+                id: id,
+                deletedAt: null,
+            },
+            data: {
+                deletedAt: new Date(),
+                totalOutstanding: data.totalOutstanding,
+            },
         });
 
         return removeInvoice;
@@ -432,57 +460,57 @@ class ClientRepository {
         const invoiceFilters = [];
 
         if (parsedDate) {
-        invoiceFilters.push({ issuedDate: { equals: parsedDate } });
-        invoiceFilters.push({ dueDate: { equals: parsedDate } });
+            invoiceFilters.push({ issuedDate: { equals: parsedDate } });
+            invoiceFilters.push({ dueDate: { equals: parsedDate } });
         }
 
         if (parsedNumber !== undefined) {
-        invoiceFilters.push({ totalOutstanding: { equals: parsedNumber } });
+            invoiceFilters.push({ totalOutstanding: { equals: parsedNumber } });
         }
 
         const invoices = await prisma.invoices.findMany({
-        skip: skip,
-        take: limit,
-        where: {
-            deletedAt: null,
-            OR: [
-            { invoiceNumber: { contains: query, mode: "insensitive" } },
-            { description: { contains: query, mode: "insensitive" } },
-            ...invoiceFilters,
-            ],
-        },
-        orderBy: {
-            createdAt: "desc",
-        },
+            skip: skip,
+            take: limit,
+            where: {
+                deletedAt: null,
+                OR: [
+                { invoiceNumber: { contains: query, mode: "insensitive" } },
+                { description: { contains: query, mode: "insensitive" } },
+                ...invoiceFilters,
+                ],
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
         });
 
         const totalInvoices = await prisma.invoices.count({
-        where: {
-            deletedAt: null,
-            OR: [
-            { invoiceNumber: { contains: query, mode: "insensitive" } },
-            { description: { contains: query, mode: "insensitive" } },
-            ...invoiceFilters,
-            ],
-        },
+            where: {
+                deletedAt: null,
+                OR: [
+                    { invoiceNumber: { contains: query, mode: "insensitive" } },
+                    { description: { contains: query, mode: "insensitive" } },
+                    ...invoiceFilters,
+                ],
+            },
         });
 
         return {
-        invoices,
-        totalInvoices,
+            invoices,
+            totalInvoices,
         };
     }
 
     // SUM TOTAL OUTSTANDING FUNCTION
     async sumTotalOutstanding(): Promise<number> {
         const result = await prisma.invoices.aggregate({
-        _sum: {
-            lineTotal: true,
-        },
-        where: {
-            deletedAt: null,
-            isDraft: false,
-        },
+            _sum: {
+                lineTotal: true,
+            },
+            where: {
+                deletedAt: null,
+                isDraft: false,
+            },
         });
 
         return result._sum.lineTotal?.toNumber() || 0;
@@ -491,13 +519,13 @@ class ClientRepository {
     // SUM TOTAL OUTSTANDING FUNCTION
     async sumDraftTotalOutstanding(): Promise<number> {
         const result = await prisma.invoices.aggregate({
-        _sum: {
-            lineTotal: true,
-        },
-        where: {
-            deletedAt: null,
-            isDraft: true,
-        },
+            _sum: {
+                lineTotal: true,
+            },
+            where: {
+                deletedAt: null,
+                isDraft: true,
+            },
         });
 
         return result._sum.lineTotal?.toNumber() || 0;
@@ -506,16 +534,16 @@ class ClientRepository {
     // SUM DUE DATE TOTAL OUTSTANDING FUNCTION
     async sumDueDateTotalOutstanding(): Promise<number> {
         const result = await prisma.invoices.aggregate({
-        _sum: {
-            lineTotal: true,
-        },
-        where: {
-            deletedAt: null,
-            isDraft: false,
-            dueDate: {
-            lte: new Date(),
+            _sum: {
+                lineTotal: true,
             },
-        },
+            where: {
+                deletedAt: null,
+                isDraft: false,
+                dueDate: {
+                lte: new Date(),
+                },
+            },
         });
 
         return result._sum.lineTotal?.toNumber() || 0;

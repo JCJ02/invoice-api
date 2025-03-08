@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import ClientService from "../services/ClientService";
 import AppResponse from "../utils/appResponse";
 import { createClientSchema, updateClientSchema } from "../utils/validations/ClientSchema";
-import { createInvoicesArraySchema, updateInvoiceSchema } from "../utils/validations/InvoiceSchema";
+import { createInvoicesArraySchema, updateInvoicesArraySchema, updateInvoiceSchema } from "../utils/validations/InvoiceSchema";
 
 class ClientController {
 
@@ -15,6 +15,7 @@ class ClientController {
         this.create = this.create.bind(this);
         this.createMany = this.createMany.bind(this);
         this.draftMany = this.draftMany.bind(this);
+        this.updateMany = this.updateMany.bind(this);
         this.generateRecurringInvoices = this.generateRecurringInvoices.bind(this);
         this.update = this.update.bind(this);
         this.delete = this.delete.bind(this);
@@ -194,7 +195,7 @@ class ClientController {
         try {
 
             const clientId = Number(req.params.id);
-            const invoiceNumber = req.query.invoiceNumber as string;;
+            const invoiceNumber = req.query.invoiceNumber as string;
 
             const isClientExist = await this.clientService.get(clientId, invoiceNumber);
 
@@ -315,6 +316,55 @@ class ClientController {
 
             }
 
+        } catch (error: any) {
+            return AppResponse.sendErrors({
+                res,
+                data: null,
+                message: error.message,
+                code: 500
+            });
+        }
+    }
+
+    // UPDATE MANY INVOICES FUNCTION
+    async updateMany(req: Request, res: Response) {
+        try {
+
+            const id = Number(req.params.id);
+            const invoiceNumber = req.query.invoiceNumber as string;
+            const validation = updateInvoicesArraySchema.safeParse(req.body.invoices);
+
+            if (validation.error) {
+                return AppResponse.sendErrors({
+                    res,
+                    data: null,
+                    message: validation.error.errors[0].message,
+                    code: 403
+                });
+            } else {
+
+                const areInvoicesValid = await this.clientService.updateMany(id, invoiceNumber, validation.data);
+
+                if (!areInvoicesValid) {
+                    return AppResponse.sendErrors({
+                        res,
+                        data: null,
+                        message: "Failed to Update Many Invoices!",
+                        code: 403
+                    });
+                } else {
+                    return AppResponse.sendSuccessful({
+                        res,
+                        data: {
+                            invoices: areInvoicesValid
+                        },
+                        message: "Successfully Updated!",
+                        code: 201
+                    });
+                }
+
+            }
+            
         } catch (error: any) {
             return AppResponse.sendErrors({
                 res,
