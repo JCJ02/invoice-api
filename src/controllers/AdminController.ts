@@ -4,6 +4,8 @@ import AppResponse from "../utils/appResponse";
 import TestService from "../services/TestService";
 import { authMiddlewareRequest } from "../types/AuthMiddlewareType";
 import { authAdminSchema, createAdminSchema } from "../utils/validations/AdminSchema";
+import { generateToken, verifyRefreshToken } from "../utils/token";
+import { JwtPayload } from "jsonwebtoken";
 
 class AdminController {
 
@@ -16,7 +18,7 @@ class AdminController {
         this.testService = new TestService();
 
         this.test = this.test.bind(this);
-        this.dashboard = this.dashboard.bind(this);
+        this.accessToken = this.accessToken.bind(this);
         this.create = this.create.bind(this);
         this.authenticate = this.authenticate.bind(this);
 
@@ -54,7 +56,8 @@ class AdminController {
         }
     }
 
-    async dashboard(req: authMiddlewareRequest, res: Response) {
+    // VERIFY ACCESS TOKEN FUNCTION
+    async accessToken(req: authMiddlewareRequest, res: Response) {
 
         try {
 
@@ -64,7 +67,7 @@ class AdminController {
                 return AppResponse.sendErrors({
                     res,
                     data: null,
-                    message: "Admin Not Found!",
+                    message: "Admin not Found!",
                     code: 403
                 });
             } else {
@@ -93,7 +96,143 @@ class AdminController {
 
     }
 
+    // async refreshToken(req: authMiddlewareRequest, res: Response) {
+    //     try {
+
+    //         const authenticationHeader = req.headers.authorization;
+
+    //         if (!authenticationHeader) {
+    //             return AppResponse.sendErrors({
+    //                 res,
+    //                 data: null,
+    //                 message: "Authorization Header with Bearer Token is Required!",
+    //                 code: 401
+    //             });
+    //         }
+
+    //         const refreshToken = authenticationHeader.split(' ')[1];
+        
+    //         if (!refreshToken) {
+    //             return AppResponse.sendErrors({
+    //                 res,
+    //                 data: null,
+    //                 message: "Refresh Token is Missing!",
+    //                 code: 401
+    //             });
+    //         }
+
+    //         const decoded = verifyRefreshToken(refreshToken);
+
+    //         const admin = req.user;
+            
+    //         if(!admin) {
+    //             return AppResponse.sendErrors({
+    //                 res,
+    //                 data: null,
+    //                 message: "Admin not Found!",
+    //                 code: 404
+    //             });
+    //         }
+
+    //         const newAccessToken = generateToken({
+    //             id: decoded.id,
+    //             firstname: decoded.firstname,
+    //             lastname: decoded.lastname,
+    //             email: decoded.email,
+    //             role: decoded.role
+    //         });
+
+    //         return AppResponse.sendSuccessful({
+    //             res,
+    //             data: {
+    //                 newAccessToken
+    //             },
+    //             message: "Admin Found!",
+    //             code: 200
+    //         });
+
+
+    //     } catch (error: any) {
+    //         return AppResponse.sendErrors({
+    //             res,
+    //             data: null,
+    //             message: error.message,
+    //             code: 500
+    //         });
+    //     }
+    // }
+
     // CREATE ADMIN METHOD
+    
+    // AdminController.ts
+    async refreshToken(req: Request, res: Response) {
+        try {
+            // 1. EXTRACT REFRESH TOKEN
+            const authHeader = req.headers.authorization;
+            
+            if (!authHeader?.startsWith('Bearer ')) {
+                return AppResponse.sendErrors({
+                    res,
+                    data: null,
+                    message: "Authorization Header with Bearer Token Required",
+                    code: 401
+                });
+            }
+
+            const refreshToken = authHeader.split(' ')[1].trim();
+            
+            // 2. VERIFY REFRESH TOKEN
+            const decoded = verifyRefreshToken(refreshToken);
+
+            // 3. FETCH ADMIN FROM DATABASE USING ID FROM REFRESH TOKEN
+            const adminService = new AdminService();
+            const admin = await adminService.show(decoded.id);
+            
+            if (!admin) {
+                return AppResponse.sendErrors({
+                    res,
+                    data: null,
+                    message: "Admin not Found",
+                    code: 404
+                });
+            }
+
+            // 4. GENERATE NEW ACCESS TOKEN
+            const newAccessToken = generateToken({
+                id: admin.id,
+                firstname: admin.firstname,
+                lastname: admin.lastname,
+                email: admin.email,
+                role: admin.role
+            });
+
+            // 5. RETURN SUCCESS RESPONSE
+            return AppResponse.sendSuccessful({
+                res,
+                data: { accessToken: newAccessToken },
+                message: "Access Token Refreshed",
+                code: 200
+            });
+
+        } catch (error: any) {
+            // HANDLE SPECIFIC JWT ERRORS
+            const message = error.message === "Invalid Token" ? "Invalid Refresh Token" 
+                        : error.message === "Token Expired" ? "Refresh Token Expired"
+                        : "Token Refresh Failed";
+            
+            const code = error.message === "Invalid Token" ? 401 
+                    : error.message === "Token Expired" ? 401 
+                    : 500;
+
+            return AppResponse.sendErrors({
+                res,
+                data: null,
+                message,
+                code
+            });
+        }
+    }
+
     async create(req: Request, res: Response) {
 
         try {
@@ -115,7 +254,7 @@ class AdminController {
                     return AppResponse.sendErrors({
                         res,
                         data: null,
-                        message: "E-mail Is Already Exist!",
+                        message: "E-mail Already Exist!",
                         code: 403
                     });
                 } else {
@@ -162,7 +301,7 @@ class AdminController {
                     return AppResponse.sendErrors({
                         res,
                         data: null,
-                        message: "Invalid Log In Credentials!",
+                        message: "Invalid Login Credentials!",
                         code: 401
                     });
                 } else {
