@@ -43,7 +43,7 @@ const authMiddleware = async (req: authMiddlewareRequest, res: Response, next: N
             return AppResponse.sendErrors({
                 res,
                 data: null,
-                message: "Unauthorized!",
+                message: "Unauthorized Access!",
                 code: 403
             });
         }
