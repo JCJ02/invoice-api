@@ -1,6 +1,6 @@
 import AdminRepository from "../repositories/AdminRepository";
 import bcrypt from "bcryptjs";
-import { generateToken } from "../utils/token";
+import { generateRefreshToken, generateToken } from "../utils/token";
 import { adminType } from "../types/AdminType";
 import prisma from "../utils/prismaClient";
 import { sendAccountDetails } from "../utils/sendAccountDetails";
@@ -100,8 +100,17 @@ class AdminService {
         });
         // console.log(`Admin ID: ${admin.id}, Admin Role: ${admin.role}`);
 
+        const refreshToken = generateRefreshToken({
+            id: admin.id,
+            firstname: admin.firstname,
+            lastname: admin.lastname,
+            email: admin.email,
+            role: admin.role
+        });
+
         return {
-            token: token,
+            accessToken: token,
+            refreshToken: refreshToken,
             admin: {
                 id: admin.id,
                 firstname: admin.firstname,
