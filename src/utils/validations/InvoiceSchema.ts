@@ -35,6 +35,7 @@ const createInvoicesSchema = z.object({
 const createInvoicesArraySchema = z.array(createInvoicesSchema);
 
 const updateInvoicesSchema = z.object({
+    id: z.number().int().positive(),
     description: z.string({
         required_error: "Description is Required!"
     })

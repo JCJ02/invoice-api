@@ -264,30 +264,69 @@ class ClientService {
         }
     }
 
+    // // UPDATE MANY INVOICES METHOD
+    // async updateMany(id: number, invoiceNumber: string, data: any[]) {
+    //     const client = await this.clientRepository.show(id);
+    
+    //     if (!client) {
+    //         return null;
+    //     }
+    
+    //     // VALIDATE ALL INVOICES HAVE IDs
+    //     if (data.some(invoice => !invoice.id)) {
+    //         throw new Error('All Invoices must include an ID for Update');
+    //     }
+
+    //     const updateInvoices = data.map((invoice: any) => {
+    //         const lineTotal = Number(invoice.rate || 0) * Number(invoice.quantity || 0);
+    //         return { ...invoice, lineTotal };
+    //     });
+    
+    //     const totalOutstanding = updateInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
+    
+    //     return await this.clientRepository.updateMany(
+    //         client.id,
+    //         invoiceNumber,
+    //         updateInvoices.map((invoice: any) => ({
+    //             ...invoice,
+    //             totalOutstanding,
+    //         }))
+    //     );
+    // }
+
     // UPDATE MANY INVOICES METHOD
     async updateMany(id: number, invoiceNumber: string, data: any[]) {
         const client = await this.clientRepository.show(id);
-    
+        
         if (!client) {
             return null;
         }
     
-        const updateInvoices = data.map((invoice: any) => {
+        // VALIDATE ALL INVOICES HAVE IDs
+        if (data.some(invoice => !invoice.id)) {
+            throw new Error('All Invoices must include an ID for Update');
+        }
+    
+        // CALCULATE LINE TOTALS AND VERIFY DATA
+        const updateInvoices = data.map(invoice => {
             const lineTotal = Number(invoice.rate || 0) * Number(invoice.quantity || 0);
             return { ...invoice, lineTotal };
         });
     
-        const totalOutstanding = updateInvoices.reduce((sum: number, invoice: any) => sum + Number(invoice.lineTotal || 0), 0);
+        const totalOutstanding = updateInvoices.reduce(
+            (sum, invoice) => sum + Number(invoice.lineTotal || 0), 
+            0
+        );
     
         return await this.clientRepository.updateMany(
             client.id,
             invoiceNumber,
-            updateInvoices.map((invoice: any) => ({
+            updateInvoices.map(invoice => ({
                 ...invoice,
-                totalOutstanding,
+                totalOutstanding
             }))
         );
-    }    
+    }   
 
     // GENERATE RECURRING INVOICE/s FUNCTION
     async generateRecurringInvoices() {

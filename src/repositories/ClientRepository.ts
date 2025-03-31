@@ -310,15 +310,56 @@ class ClientRepository {
     }
 
     // UPDATE MANY INOICES METHOD
+    // async updateMany(clientId: number, invoiceNumber: string, data: any[]) {
+    //     const updatedInvoices = await Promise.all(
+    //         data.map((invoice) =>
+    //             prisma.invoices.updateMany({
+    //                 where: {
+    //                     invoiceNumber: invoiceNumber,
+    //                     clientId: clientId,
+    //                     deletedAt: null
+    //                 },
+    //                 data: {
+    //                     description: invoice.description,
+    //                     rate: invoice.rate,
+    //                     quantity: invoice.quantity,
+    //                     lineTotal: invoice.lineTotal,
+    //                     dueDate: invoice.dueDate,
+    //                     totalOutstanding: invoice.totalOutstanding,
+    //                     notes: invoice.notes,
+    //                     terms: invoice.terms,
+    //                     isRecurring: invoice.isRecurring
+    //                 },
+    //             })
+    //         )
+    //     );
+    
+    //     return updatedInvoices;
+    // } 
+
+    // UPDATE MANY INOICES METHOD
     async updateMany(clientId: number, invoiceNumber: string, data: any[]) {
+        // FIRST VERIFY ALL INVOICES BELONG TO THIS CLIENT AND INVOICE NUMBER
+        const existingInvoices = await prisma.invoices.findMany({
+            where: {
+                clientId: clientId,
+                invoiceNumber: invoiceNumber,
+                deletedAt: null,
+                id: {
+                    in: data.map(invoice => invoice.id)
+                }
+            }
+        });
+    
+        if (existingInvoices.length !== data.length) {
+            throw new Error('Some Invoices not found or don\'t belong to this Client');
+        }
+    
+        // THEN UPDATE EACH INVOICE INDIVIDUALLY
         const updatedInvoices = await Promise.all(
-            data.map((invoice) =>
-                prisma.invoices.updateMany({
-                    where: {
-                        invoiceNumber: invoiceNumber,
-                        clientId: clientId,
-                        deletedAt: null
-                    },
+            data.map(invoice => 
+                prisma.invoices.update({
+                    where: { id: invoice.id },
                     data: {
                         description: invoice.description,
                         rate: invoice.rate,
@@ -329,13 +370,13 @@ class ClientRepository {
                         notes: invoice.notes,
                         terms: invoice.terms,
                         isRecurring: invoice.isRecurring
-                    },
+                    }
                 })
             )
         );
     
         return updatedInvoices;
-    }    
+    }
 
     // FIND OVER DUE DATE RECURRING INVOICES FUNCTION
     async findOverdueRecurringInvoices() {
