@@ -16,7 +16,7 @@ class AdminService {
 
     }
 
-    // CREATE ADMIN METHOD
+    // CREATE ADMIN ACCOUNT FUNCTION
     async create(data: adminType) {
 
         const isEmailExist = await this.adminRepository.validateEmail(data.email);

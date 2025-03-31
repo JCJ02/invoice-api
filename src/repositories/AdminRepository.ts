@@ -3,7 +3,7 @@ import prisma from "../utils/prismaClient";
 
 class AdminRepository {
 
-    // CREATE ADMIN METHOD
+    // CREATE ADMIN ACCOUNT FUNCTION
     async create(data: adminAccountType, prismaTransaction: any) {
 
         const newAdmin = await prismaTransaction.admin.create({

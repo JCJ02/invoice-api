@@ -8,6 +8,111 @@ const adminController = new AdminController();
 adminRoute.get("/test", adminController.test);
 adminRoute.get("/access-token", authMiddleware, adminController.accessToken);
 adminRoute.get("/refresh-token", adminController.refreshToken);
+
+/**
+ * @swagger
+ * /api/admin:
+ *   post:
+ *     summary: Create a New Admin Account
+ *     tags: [Admin Management]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstname:
+ *                 type: string
+ *                 example: "John Carlo"
+ *               lastname:
+ *                 type: string
+ *                 example: "Jacobe"
+ *               email:
+ *                 type: string
+ *                 example: "john.carlo.jacobe02@gmail.com"
+ *     responses:
+ *       201:
+ *         description: Successfully Created Admin Account
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 41
+ *                     firstname:
+ *                       type: string
+ *                       example: "John Carlo"
+ *                     lastname:
+ *                       type: string
+ *                       example: "Jacobe"
+ *                     email:
+ *                       type: string
+ *                       example: "jacobe.johncarlo.02022003@gmail.com"
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-03-31T07:56:15.117Z"
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-03-31T07:56:15.117Z"
+ *                     deletedAt:
+ *                       type: string
+ *                       nullable: true
+ *                       example: null
+ *                     role:
+ *                       type: string
+ *                       example: "Admin"
+ *                 message:
+ *                   type: string
+ *                   example: "Successfully Created!"
+ *                 code:
+ *                   type: integer
+ *                   example: 201
+ *       403:
+ *         description: Email Already Exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   nullable: true
+ *                   example: null
+ *                 message:
+ *                   type: string
+ *                   example: "E-mail Already Exist!"
+ *                 code:
+ *                   type: integer
+ *                   example: 403
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   nullable: true
+ *                   example: null
+ *                 message:
+ *                   type: string
+ *                   example: "An Unexpected Error Occurred."
+ *                 code:
+ *                   type: integer
+ *                   example: 500
+ */
+
 adminRoute.post("/", adminController.create);
 
 
@@ -43,7 +148,11 @@ adminRoute.post("/", adminController.create);
  *                 data:
  *                   type: object
  *                   properties:
- *                     token:
+ *                     accessToken:
+ *                       type: string
+ *                       description: JWT token for authentication
+ *                       example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                     refreshToken:
  *                       type: string
  *                       description: JWT token for authentication
  *                       example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."

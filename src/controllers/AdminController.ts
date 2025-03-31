@@ -95,76 +95,8 @@ class AdminController {
         }
 
     }
-
-    // async refreshToken(req: authMiddlewareRequest, res: Response) {
-    //     try {
-
-    //         const authenticationHeader = req.headers.authorization;
-
-    //         if (!authenticationHeader) {
-    //             return AppResponse.sendErrors({
-    //                 res,
-    //                 data: null,
-    //                 message: "Authorization Header with Bearer Token is Required!",
-    //                 code: 401
-    //             });
-    //         }
-
-    //         const refreshToken = authenticationHeader.split(' ')[1];
-        
-    //         if (!refreshToken) {
-    //             return AppResponse.sendErrors({
-    //                 res,
-    //                 data: null,
-    //                 message: "Refresh Token is Missing!",
-    //                 code: 401
-    //             });
-    //         }
-
-    //         const decoded = verifyRefreshToken(refreshToken);
-
-    //         const admin = req.user;
-            
-    //         if(!admin) {
-    //             return AppResponse.sendErrors({
-    //                 res,
-    //                 data: null,
-    //                 message: "Admin not Found!",
-    //                 code: 404
-    //             });
-    //         }
-
-    //         const newAccessToken = generateToken({
-    //             id: decoded.id,
-    //             firstname: decoded.firstname,
-    //             lastname: decoded.lastname,
-    //             email: decoded.email,
-    //             role: decoded.role
-    //         });
-
-    //         return AppResponse.sendSuccessful({
-    //             res,
-    //             data: {
-    //                 newAccessToken
-    //             },
-    //             message: "Admin Found!",
-    //             code: 200
-    //         });
-
-
-    //     } catch (error: any) {
-    //         return AppResponse.sendErrors({
-    //             res,
-    //             data: null,
-    //             message: error.message,
-    //             code: 500
-    //         });
-    //     }
-    // }
-
-    // CREATE ADMIN METHOD
     
-    // AdminController.ts
+    // CREATE REFRESH TOKEN FUNCTION
     async refreshToken(req: Request, res: Response) {
         try {
             // 1. EXTRACT REFRESH TOKEN
@@ -233,6 +165,7 @@ class AdminController {
         }
     }
 
+    // CREATE ADMIN ACCOUNT FUNCTION
     async create(req: Request, res: Response) {
 
         try {
